@@ -1,0 +1,1157 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Пятая сила: тетрадь опытов</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=IBM+Plex+Mono:wght@400;600&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Design plan: «тетрадь учёного». Бумага в клетку с красным полем и спиралью,
+   рукописные заголовки и пометки, штампы статусов, фотографии вклеены на скотч,
+   латунные детали (зажим, заклёпки, край обложки). Шрифты: Caveat (от руки),
+   Source Serif 4 (текст, строка 32 px совпадает с клеткой), IBM Plex Mono (даты, штампы). */
+:root {
+  --desk: #CDBFA2; --paper: #F7F0DE; --paper-2: #EFE4C7; --card: #FFFCF3; --red-ink: #B3261E;
+  --ink: #2B2620; --ink-2: #5B5244; --pencil: #77726A;
+  --rule: color-mix(in srgb, #5B7FA6 38%, transparent); --margin: #C7756A;
+  --hl: rgba(232, 196, 92, .38); --brass: #A67C3D; --brass-hi: #E2C27D;
+  --accent: #2A4B8D; --warn-text: #7A5A1E;
+  --ok: #2E6B3F; --lim: #1F4E8C; --open: #9A5B00; --conf: #A3361E; --closed: #6E6E6E; --warn: #6B6B6B; --schema: #4B4B4B;
+  --e0: #6B5B45; --e1: #2A4B8D; --e2: #4B3F86; --e3: #2E6B6B; --e4: #7A4A2E;
+  --hand: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk: #15110D; --paper: #27221C; --paper-2: #2F2922; --card: #3A342C;
+    --ink: #EDE4CE; --ink-2: #BFB49C; --pencil: #9C9485;
+    --rule: color-mix(in srgb, #7F9BBE 34%, transparent); --margin: #9A5246;
+    --hl: rgba(214, 170, 70, .24); --brass: #C49A57; --brass-hi: #E9CB8C; --accent: #9DB6E8; --warn-text: #E6B562; --red-ink: #E0675B;
+    --ok: #86C395; --lim: #8DB6E8; --open: #E6B562; --conf: #E9937F; --closed: #B0B0B0; --warn: #A8A8A8; --schema: #CFCFCF;
+    --e0: #C9B89B; --e1: #9DB6E8; --e2: #B5AEEB; --e3: #8FD0D0; --e4: #D9B395;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --desk: #15110D; --paper: #27221C; --paper-2: #2F2922; --card: #3A342C;
+  --ink: #EDE4CE; --ink-2: #BFB49C; --pencil: #9C9485;
+  --rule: color-mix(in srgb, #7F9BBE 34%, transparent); --margin: #9A5246;
+  --hl: rgba(214, 170, 70, .24); --brass: #C49A57; --brass-hi: #E9CB8C; --accent: #9DB6E8; --warn-text: #E6B562; --red-ink: #E0675B;
+  --ok: #86C395; --lim: #8DB6E8; --open: #E6B562; --conf: #E9937F; --closed: #B0B0B0; --warn: #A8A8A8; --schema: #CFCFCF;
+  --e0: #C9B89B; --e1: #9DB6E8; --e2: #B5AEEB; --e3: #8FD0D0; --e4: #D9B395;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100%;
+  background-color: var(--desk);
+  background-image: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, .10), transparent 60%), radial-gradient(ellipse at 50% 100%, rgba(0, 0, 0, .16), transparent 60%);
+  color: var(--ink); font: 400 17px/32px var(--serif);
+}
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.wrap {
+  padding-block: 20px 36px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.notebook {
+  position: relative; max-width: 1200px; margin-inline: auto;
+  background: var(--paper); border-radius: 6px 10px 10px 6px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, .08), 0 24px 48px -22px rgba(40, 25, 10, .6);
+  overflow: hidden; padding-left: 26px;
+}
+/* спираль и тень переплёта */
+.notebook::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 26px; pointer-events: none;
+  background:
+    radial-gradient(circle at 13px 20px, var(--desk) 0 5px, transparent 6px) 0 0 / 26px 44px repeat-y,
+    linear-gradient(90deg, rgba(60, 35, 10, .28), transparent);
+}
+/* износ по краям и зернистость бумаги */
+.notebook::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 3;
+  background:
+    radial-gradient(120% 96% at 50% 42%, transparent 60%, rgba(120, 80, 30, .24) 100%),
+    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply; opacity: .85;
+}
+.hand { font-family: var(--hand); }
+.cover {
+  position: relative; padding: 44px 48px 26px 56px;
+  background: linear-gradient(180deg, var(--paper), var(--paper-2));
+  border-bottom: 3px double var(--brass);
+}
+.cover-title { margin: 0; font: 700 clamp(3.2rem, 9vw, 5.4rem)/.95 var(--hand); color: var(--ink); }
+.cover-sub { margin: 4px 0 0; font: italic 400 19px/32px var(--serif); color: var(--ink-2); }
+.cover-hint { margin: 10px 0 0; font: 600 24px/1.2 var(--hand); color: var(--accent); }
+.clip {
+  position: absolute; top: 18px; right: 56px; width: 74px; height: 26px; border-radius: 13px;
+  border: 3px solid var(--brass); background: linear-gradient(var(--brass-hi), var(--brass));
+  transform: rotate(7deg); box-shadow: 0 2px 3px rgba(0, 0, 0, .25);
+}
+.stamps { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+.page-l .stamps { justify-content: flex-end; margin-top: 2px; }
+/* пометки красной ручкой: кто-то проверил и написал на полях */
+.stamp {
+  display: inline-block; font: 700 27px/1 var(--hand); color: var(--red-ink); white-space: nowrap;
+  padding: 4px 12px 6px; border: 2.5px solid var(--red-ink);
+  border-radius: 255px 12px 230px 14px / 14px 225px 12px 255px;
+  background: transparent; opacity: .93; transform: rotate(var(--tilt, -3deg));
+}
+.stamps .stamp:nth-child(even) { --tilt: 2.5deg; }
+.st-ok::before { content: "✓ "; }
+.st-open { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; }
+.st-conf { text-decoration: underline wavy var(--red-ink); text-underline-offset: 6px; }
+.st-closed { text-decoration: line-through; text-decoration-thickness: 2px; }
+.st-warn { border-style: dashed; }
+.st-warn::after { content: " ?"; }
+.stamp.st-schema, .stamp.st-data {
+  color: var(--pencil); border: 1px solid var(--pencil); border-radius: 3px;
+  font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 6px 9px; transform: rotate(-2deg);
+}
+.stamp.st-schema { color: var(--schema); }
+.cover .stamps { margin-top: 14px; }
+
+/* оглавление */
+.index { padding: 26px 48px 14px 56px; border-bottom: 1px dashed var(--rule); }
+.index-h { margin: 0 0 6px; font: 700 34px/1 var(--hand); color: var(--ink); }
+.eras { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px; }
+.era { border-top: 3px solid var(--e); padding-top: 8px; min-width: 0; }
+.era-name { margin: 0; font: 700 23px/1.05 var(--hand); color: var(--e); }
+.era-years { margin: 0 0 6px; font: 400 12px/1.4 var(--mono); color: var(--pencil); }
+.entries { list-style: none; margin: 0; padding: 0; }
+.entry {
+  display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 2px 6px 2px 2px;
+  background: none; border: 0; border-bottom: 1px dotted var(--rule); cursor: pointer; text-align: left;
+  font: inherit; color: var(--ink);
+}
+.entry[aria-current="true"] { background: var(--hl); border-radius: 2px; }
+.ey { min-width: 62px; font: 700 25px/1.1 var(--hand); color: var(--e); }
+.et { font: 400 15px/1.3 var(--serif); }
+
+/* разворот тетради */
+.spread { position: relative; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+.spread::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 26px; margin-left: -13px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(60, 35, 10, .16) 50%, transparent);
+}
+.spread.turn { animation: turn .38s ease-out both; }
+@keyframes turn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: none; } }
+.page { position: relative; min-width: 0; padding: 38px 40px 34px 74px; background-color: var(--paper);
+  background-image:
+    linear-gradient(90deg, transparent 0 60px, var(--margin) 60px 61px, transparent 61px),
+    repeating-linear-gradient(to bottom, transparent 0 31px, var(--rule) 31px 32px);
+  background-position: 0 0, 0 40px; background-attachment: local; }
+.page-r { padding: 38px 40px 34px 40px; background-image: repeating-linear-gradient(to bottom, transparent 0 31px, var(--rule) 31px 32px); background-position: 0 40px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 4px; }
+.tab {
+  font: 700 21px/1 var(--hand); color: var(--ink-2); background: var(--paper-2);
+  border: 1px solid var(--rule); border-bottom: 0; border-radius: 8px 8px 0 0; padding: 8px 14px 6px; cursor: pointer;
+}
+.tab[aria-selected="true"] { background: var(--paper); color: var(--accent); box-shadow: inset 0 3px 0 var(--accent); }
+.kicker { margin: 0; font: 600 13px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--pencil); }
+.page-title { margin: 4px 0 0; font: 700 50px/1.02 var(--hand); color: var(--ink); text-wrap: balance; }
+.lede { margin: 4px 0 0; font: italic 400 17px/32px var(--serif); color: var(--ink-2); }
+.hand-h { margin: 14px 0 0; font: 700 26px/32px var(--hand); color: var(--accent); }
+.page p { margin: 0; }
+.steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+.steps li { counter-increment: s; position: relative; padding-left: 36px; }
+.steps li::before { content: counter(s); position: absolute; left: 0; top: 0; font: 700 26px/32px var(--hand); color: var(--accent); }
+.result { list-style: none; margin: 0; padding: 0; }
+.result li { position: relative; padding-left: 28px; }
+.result li::before { content: "✓"; position: absolute; left: 0; top: 0; font: 700 22px/32px var(--hand); color: var(--ok); }
+.note-hand {
+  display: inline-block; margin-top: 12px; padding: 4px 12px 6px; transform: rotate(-1.5deg);
+  font: 600 23px/1.25 var(--hand); color: var(--accent); background: var(--hl);
+}
+.src { margin-top: 16px; font: 400 12px/1.6 var(--mono); color: var(--pencil); }
+.pager { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 22px; padding-top: 10px; border-top: 1px dashed var(--rule); }
+.pg { background: none; border: 0; padding: 4px 2px; cursor: pointer; text-align: left; font: 700 23px/1.1 var(--hand); color: var(--accent); }
+.pg[disabled] { opacity: .35; cursor: default; }
+
+/* фотографии и схемы */
+.photo {
+  position: relative; margin: 8px 0 18px; padding: 10px 10px 12px; background: var(--card);
+  box-shadow: 0 4px 9px -3px rgba(40, 25, 10, .4); transform: rotate(-.7deg);
+}
+.photo:nth-of-type(even) { transform: rotate(.8deg); }
+.photo img { display: block; width: 100%; height: auto; max-width: 100%; }
+.photo::before {
+  content: ""; position: absolute; top: -12px; left: 26%; width: 96px; height: 28px;
+  background: rgba(232, 204, 120, .6); transform: rotate(-5deg); box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+}
+.photo::after {
+  content: ""; position: absolute; right: -6px; bottom: -6px; width: 13px; height: 13px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--brass-hi), var(--brass)); box-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+}
+.photo.small { width: 62%; margin-left: auto; }
+.photo-tag { position: absolute; top: 18px; right: 18px; background: var(--paper); }
+.cap { margin: 6px 2px 0; font: 400 22px/1.2 var(--hand); color: var(--ink-2); }
+.fig { margin: 0 0 18px; }
+.fig svg { display: block; width: 100%; height: auto; max-width: 100%; }
+.fig figcaption { display: flex; gap: 10px; align-items: flex-start; margin-top: 8px; }
+.fig .cap { margin: 0; }
+
+/* svg в стиле карандаша и чернил */
+.g-ln { fill: none; stroke: var(--ink-2); stroke-width: 2; }
+.g-th { fill: none; stroke: var(--rule); stroke-width: 1.5; }
+.g-ac { fill: none; stroke: var(--accent); stroke-width: 2.6; }
+.g-ac-d { fill: none; stroke: var(--accent); stroke-width: 2; stroke-dasharray: 6 5; }
+.g-beam { fill: none; stroke: var(--ink); stroke-width: 4; }
+.g-body { fill: var(--card); stroke: var(--ink); stroke-width: 2; }
+.g-bodyac { fill: var(--accent); fill-opacity: .2; stroke: var(--accent); stroke-width: 2; }
+.g-fill-ac { fill: var(--accent); }
+.g-fill-ac-soft { fill: var(--accent); fill-opacity: .2; }
+.g-fill-ink { fill: var(--ink); }
+.g-fill-mut { fill: var(--ink-2); }
+.g-fill-soft { fill: var(--paper-2); }
+.g-pt, .g-pt-ok { fill: var(--accent); }
+.g-pt-warn { fill: var(--card); stroke: var(--warn-text); stroke-width: 2; }
+.g-bar { stroke: var(--ink); stroke-width: 2; }
+.g-lbl { font-family: var(--hand); font-size: 22px; fill: var(--ink-2); }
+.g-lbl-b { font-family: var(--hand); font-size: 24px; font-weight: 700; fill: var(--ink); }
+.g-lim { fill: var(--lim); } .g-open { fill: var(--open); } .g-ok { fill: var(--ok); }
+
+.colophon { padding: 18px 48px 24px 56px; border-top: 3px double var(--brass); font: 400 12px/1.6 var(--mono); color: var(--pencil); }
+
+/* сообщение о несоответствии */
+.report { margin: 0 0 8px; font: 600 20px/1.4 var(--hand); color: var(--ink); }
+.addr { font: 600 14px/1 var(--mono); color: var(--accent); user-select: all; white-space: nowrap; }
+.copy-addr { font: 700 18px/1 var(--hand); background: none; border: 1.5px solid var(--accent); color: var(--accent); border-radius: 6px; padding: 6px 12px; cursor: pointer; margin-left: 6px; }
+/* разделы тетради */
+.chapters { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 16px 48px 0 56px; }
+.chapters a { font: 700 23px/1 var(--hand); color: var(--accent); text-decoration: underline dotted; text-underline-offset: 5px; }
+.chapter {
+  position: relative; min-width: 0; padding: 34px 48px 30px 74px; border-top: 3px double var(--brass);
+  background-color: var(--paper);
+  background-image: linear-gradient(90deg, transparent 0 60px, var(--margin) 60px 61px, transparent 61px), repeating-linear-gradient(to bottom, transparent 0 31px, var(--rule) 31px 32px);
+  background-position: 0 0, 0 40px; background-attachment: local;
+}
+.chapter h2 { margin: 4px 0 0; font: 700 50px/1.02 var(--hand); color: var(--ink); }
+.chapter .sub { margin: 4px 0 10px; font: italic 400 17px/32px var(--serif); color: var(--ink-2); }
+.cbody { font-size: 16px; line-height: 32px; }
+.cbody h3 { margin: 22px 0 0; font: 700 30px/32px var(--hand); color: var(--accent); }
+.cbody p { margin: 0; }
+.tablewrap { overflow-x: auto; max-width: 100%; }
+.ntable { width: 100%; border-collapse: collapse; font: 15px/30px var(--serif); min-width: 560px; }
+.ntable th { text-align: left; font: 700 21px/1.2 var(--hand); color: var(--accent); border-bottom: 2px solid var(--rule); padding: 0 10px 4px 0; }
+.ntable td { border-bottom: 1px dotted var(--rule); padding: 4px 10px 4px 0; vertical-align: top; }
+.ntable .stamp { font-size: 19px; padding: 2px 7px 3px; border-width: 2px; }
+.gloss { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; margin: 0; }
+.gloss dt { font: 700 24px/32px var(--hand); color: var(--accent); }
+.gloss dd { margin: 0 0 8px; }
+.limits-fig { margin: 14px 0 6px; max-width: 620px; }
+.limits-fig svg { display: block; width: 100%; height: auto; }
+.hatch-line { stroke: var(--ink-2); stroke-width: 2; }
+.z-closed { fill: var(--pencil); fill-opacity: .55; }
+.z-weak { fill: var(--pencil); fill-opacity: .25; }
+.z-open { fill: url(#hatch); stroke: var(--ink-2); stroke-width: 1.2; }
+@media (max-width: 860px) { .gloss { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .chapter { padding: 26px 18px 24px 44px; } .chapter h2 { font-size: 40px; } .chapters { padding: 14px 18px 0 34px; } }
+.nofoto-tag { font: 700 19px/1 var(--hand); color: var(--red-ink); transform: rotate(-4deg); display: inline-block; white-space: nowrap; margin-left: 4px; }
+.prompt-box { margin: 14px 0 0; }
+.prompt-box summary { font: 700 22px/1.2 var(--hand); color: var(--accent); cursor: pointer; }
+.prompt-box pre { white-space: pre-wrap; font: 13px/1.5 var(--mono); background: var(--paper-2); color: var(--ink); padding: 10px 12px; border-radius: 4px; margin: 8px 0; }
+.prompt-box .copy { font: 700 18px/1 var(--hand); background: none; border: 1.5px solid var(--accent); color: var(--accent); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+@media (max-width: 960px) { .eras { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 860px) {
+  .spread { grid-template-columns: minmax(0, 1fr); }
+  .spread::before { display: none; }
+  .page-r { border-top: 2px dashed var(--rule); }
+  .page-title { font-size: 40px; }
+}
+@media (max-width: 560px) {
+  .eras { grid-template-columns: minmax(0, 1fr); }
+  .cover, .index, .colophon { padding-left: 34px; padding-right: 18px; }
+  .page { padding: 28px 18px 26px 44px; background-image: linear-gradient(90deg, transparent 0 34px, var(--margin) 34px 35px, transparent 35px), repeating-linear-gradient(to bottom, transparent 0 31px, var(--rule) 31px 32px); }
+  .page-r { padding: 26px 18px 26px 18px; }
+  .clip { right: 18px; }
+  .photo.small { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .spread.turn { animation: none; } }
+</style>
+
+<div class="wrap">
+  <div class="notebook">
+    <header class="cover">
+      <span class="clip" aria-hidden="true"></span>
+      <p class="hand" style="margin:0;font:600 24px/1.2 var(--hand);color:var(--accent)">тетрадь наблюдений · 1889–2026</p>
+      <h1 class="cover-title">Пятая сила</h1>
+      <p class="cover-sub">Опыты, которые её искали, и то, что из этого вышло.</p>
+      <p class="cover-hint">Нажмите на год в оглавлении. Стрелки ← → листают страницы.</p>
+      <div class="stamps" aria-label="Статусы">
+        <span class="stamp st-ok">Сверено</span>
+        <span class="stamp st-lim">Ограничение</span>
+        <span class="stamp st-open">Открыто</span>
+        <span class="stamp st-warn">Не проверено</span>
+        <span class="stamp st-conf">Спорно</span>
+        <span class="stamp st-closed">Отвергнуто</span>
+        <span class="stamp st-schema">Схема</span>
+      </div>
+    </header>
+
+    <nav class="chapters" aria-label="Разделы тетради">
+      <a href="#ch-gloss">Понятия</a><a href="#ch-archive">Архив гипотез</a><a href="#ch-all">Все опыты</a><a href="#ch-models">Модели</a><a href="#ch-limits">Границы</a><a href="#ch-future">Будущее 2026–2035</a><a href="#ch-people">Исследователи</a><a href="#ch-open">Спорное и открытое</a><a href="#ch-bib">Библиография</a>
+    </nav>
+
+    <nav class="index" id="ch-timeline" aria-label="Оглавление">
+      <h2 class="index-h">Оглавление</h2>
+      <div class="eras" id="eras"></div>
+    </nav>
+
+    <section class="spread" id="spread" aria-live="polite" aria-label="Страница опыта"></section>
+
+    <section class="chapter" id="ch-gloss"><p class="kicker">Раздел 1</p><h2>Понятия</h2><p class="sub">Слова, которыми говорят о пятой силе. Здесь они разведены.</p><div class="cbody" id="b-gloss"></div></section>
+    <section class="chapter" id="ch-archive"><p class="kicker">Раздел 2</p><h2>Архив гипотез</h2><p class="sub">Что предлагали, что проверяли и чем кончилось. Статусы на полях.</p><div class="cbody" id="b-archive"></div></section>
+    <section class="chapter" id="ch-all"><p class="kicker">Раздел 3</p><h2>Все опыты</h2><p class="sub">Полная таблица экспериментов и наблюдений. Ссылка в последнем столбце ведёт на страницу в ленте.</p><div class="cbody" id="b-all"></div></section>
+    <section class="chapter" id="ch-models"><p class="kicker">Раздел 4</p><h2>Модели</h2><p class="sub">Теоретические кандидаты на роль пятой силы: что переносит, как работает и где уже тесно.</p><div class="cbody" id="b-models"></div></section>
+    <section class="chapter" id="ch-limits"><p class="kicker">Раздел 5</p><h2>Границы</h2><p class="sub">Что закрыто экспериментами и где ещё можно прятаться.</p><div class="cbody" id="b-limits"></div></section>
+    <section class="chapter" id="ch-future"><p class="kicker">Раздел 6</p><h2>Будущее 2026–2035</h2><p class="sub">Какие установки должны что-то решить. Сроки ориентировочные.</p><div class="cbody" id="b-future"></div></section>
+    <section class="chapter" id="ch-people"><p class="kicker">Раздел 7</p><h2>Исследователи</h2><p class="sub">Группы и люди, которые работают над темой сейчас: в России и за рубежом. Контакты не указаны, только публичные данные из материалов.</p><div class="cbody" id="b-people"></div></section>
+    <section class="chapter" id="ch-open"><p class="kicker">Раздел 8</p><h2>Спорное и открытое</h2><p class="sub">Где источники расходились, что не проверено и что отброшено.</p><div class="cbody" id="b-open"></div></section>
+    <section class="chapter" id="ch-bib"><p class="kicker">Раздел 9</p><h2>Библиография</h2><p class="sub">Первоисточники, отобранные для тетради. Статус: сверено или не проверено.</p><div class="cbody" id="b-bib"></div></section>
+
+    <footer class="colophon">
+      <p class="report">Если вы обнаружили несоответствие, сообщите нам по электронной почте: <span class="addr">nackeoberloh963@gmail.com</span> <button type="button" class="copy-addr" data-copy="nackeoberloh963@gmail.com">Скопировать адрес</button></p>
+      Основа: сводный файл «Пятая сила — сводная база (2026-11-23)», сверка 23.11.2026. Схемы карандашом не в масштабе. Точки на схемах условные, если не сказано иначе. Иллюстрации сгенерированы и не являются фотографиями приборов.
+    </footer>
+  </div>
+</div>
+
+<script>
+const ERAS = [
+  { name: 'Предыстория', years: '1889–1922' },
+  { name: 'Гипотеза и опровержение', years: '1961–1995' },
+  { name: 'Тёмная энергия и модели', years: '1998–2010' },
+  { name: 'Лаборатория и X17', years: '2015–2020' },
+  { name: 'Точность и перепроверки', years: '2021–2026' }
+];
+
+/* ---------- схемы карандашом (SVG, цвета из токенов) ---------- */
+const F_TORSION = `<svg viewBox="0 0 560 320" role="img" aria-label="Схема крутильных весов, вид сбоку">
+<line class="g-ln" x1="210" y1="24" x2="350" y2="24"/>
+<line class="g-ln" x1="280" y1="24" x2="280" y2="128"/>
+<line class="g-beam" x1="120" y1="128" x2="440" y2="128"/>
+<circle class="g-fill-ink" cx="280" cy="128" r="5"/>
+<rect class="g-body" x="100" y="128" width="44" height="58" rx="4"/>
+<rect class="g-bodyac" x="416" y="128" width="44" height="58" rx="4"/>
+<text class="g-lbl-b" x="122" y="164" text-anchor="middle">A</text>
+<text class="g-lbl-b" x="438" y="164" text-anchor="middle">B</text>
+<line class="g-ln" x1="122" y1="194" x2="122" y2="246"/><polygon class="g-fill-mut" points="116,244 128,244 122,256"/>
+<line class="g-ln" x1="438" y1="194" x2="438" y2="246"/><polygon class="g-fill-mut" points="432,244 444,244 438,256"/>
+<text class="g-lbl" x="122" y="278" text-anchor="middle">состав 1</text>
+<text class="g-lbl" x="438" y="278" text-anchor="middle">состав 2</text>
+<text class="g-lbl" x="300" y="60">нить</text>
+<text class="g-lbl" x="280" y="152" text-anchor="middle">коромысло</text>
+<text class="g-lbl" x="280" y="306" text-anchor="middle">поворот коромысла = нарушение EP</text>
+</svg>`;
+
+const F_BD = `<svg viewBox="0 0 560 320" role="img" aria-label="Схема скалярно-тензорной теории">
+<rect class="g-body" x="50" y="90" width="170" height="90" rx="6"/>
+<text class="g-lbl-b" x="135" y="128" text-anchor="middle">метрика g</text>
+<text class="g-lbl" x="135" y="152" text-anchor="middle">тензор (ОТО)</text>
+<rect class="g-body" x="340" y="90" width="170" height="90" rx="6"/>
+<text class="g-lbl-b" x="425" y="128" text-anchor="middle">скаляр φ</text>
+<text class="g-lbl" x="425" y="152" text-anchor="middle">связь с материей</text>
+<line class="g-ac" x1="224" y1="135" x2="336" y2="135"/>
+<text class="g-lbl-b" x="280" y="124" text-anchor="middle">ω</text>
+<line class="g-ln" x1="50" y1="236" x2="510" y2="236"/>
+<rect class="g-fill-ac-soft" x="400" y="226" width="110" height="20"/>
+<text class="g-lbl" x="400" y="216">4·10⁴</text>
+<text class="g-lbl" x="50" y="264">шкала ω (иллюстративная)</text>
+<text class="g-lbl-b" x="455" y="264" text-anchor="middle">допустимо</text>
+<text class="g-lbl" x="280" y="306" text-anchor="middle">при ω → ∞ теория переходит в ОТО</text>
+</svg>`;
+
+const F_SPIN = `<svg viewBox="0 0 560 320" role="img" aria-label="Схема спин-зависимой силы">
+<circle class="g-body" cx="150" cy="150" r="46"/>
+<line class="g-ln" x1="150" y1="150" x2="150" y2="108"/><polygon class="g-fill-mut" points="144,112 156,112 150,102"/>
+<circle class="g-body" cx="410" cy="150" r="34"/>
+<line class="g-ln" x1="410" y1="150" x2="410" y2="118"/><polygon class="g-fill-mut" points="404,122 416,122 410,112"/>
+<path class="g-ac-d" d="M196,150 Q280,70 364,150"/>
+<text class="g-lbl" x="280" y="96" text-anchor="middle">псевдоскаляр (аксион)</text>
+<text class="g-lbl-b" x="150" y="222" text-anchor="middle">источник, спин</text>
+<text class="g-lbl-b" x="410" y="212" text-anchor="middle">пробное тело, спин</text>
+<text class="g-lbl" x="280" y="290" text-anchor="middle">сила зависит от ориентации спинов</text>
+</svg>`;
+
+const F_SCATTER = `<svg viewBox="0 0 560 320" role="img" aria-label="Схема корреляции Фишбаха">
+<line class="g-ln" x1="70" y1="270" x2="520" y2="270"/>
+<line class="g-ln" x1="70" y1="30" x2="70" y2="270"/>
+<line class="g-ac-d" x1="100" y1="236" x2="470" y2="100"/>
+<circle class="g-pt" cx="120" cy="222" r="6"/><circle class="g-pt" cx="190" cy="200" r="6"/>
+<circle class="g-pt" cx="262" cy="176" r="6"/><circle class="g-pt" cx="334" cy="150" r="6"/><circle class="g-pt" cx="404" cy="124" r="6"/>
+<text class="g-lbl" x="132" y="226">Pt</text><text class="g-lbl" x="202" y="204">Cu</text>
+<text class="g-lbl" x="274" y="180">Al</text><text class="g-lbl" x="346" y="154">H₂O</text><text class="g-lbl" x="416" y="128">тальк</text>
+<text class="g-lbl" x="295" y="306" text-anchor="middle">B/μ: барионное число на массу</text>
+<text class="g-lbl" transform="translate(30,150) rotate(-90)" text-anchor="middle">аномалия ускорения</text>
+</svg>`;
+
+const F_HUBBLE = `<svg viewBox="0 0 560 320" role="img" aria-label="Схема диаграммы расстояние — красное смещение">
+<line class="g-ln" x1="70" y1="270" x2="520" y2="270"/>
+<line class="g-ln" x1="70" y1="30" x2="70" y2="270"/>
+<path class="g-ln" stroke-dasharray="6 5" d="M70,250 C200,200 380,160 520,120"/>
+<path class="g-ac" d="M70,250 C200,210 330,170 520,96"/>
+<circle class="g-pt" cx="150" cy="226" r="5"/><circle class="g-pt" cx="230" cy="199" r="5"/>
+<circle class="g-pt" cx="300" cy="178" r="5"/><circle class="g-pt" cx="380" cy="151" r="5"/>
+<circle class="g-pt" cx="450" cy="127" r="5"/><circle class="g-pt" cx="500" cy="107" r="5"/>
+<text class="g-lbl" x="330" y="60">с ускорением (сплошная)</text>
+<text class="g-lbl" x="330" y="82">без ускорения (пунктир)</text>
+<text class="g-lbl" x="295" y="306" text-anchor="middle">z: красное смещение</text>
+<text class="g-lbl" transform="translate(30,150) rotate(-90)" text-anchor="middle">расстояние</text>
+</svg>`;
+
+const F_CASSINI = `<svg viewBox="0 0 560 320" role="img" aria-label="Схема радиосвязи с Cassini при солнечном соединении">
+<circle class="g-body" cx="80" cy="170" r="28"/>
+<text class="g-lbl" x="80" y="222" text-anchor="middle">Земля</text>
+<circle class="g-fill-soft" cx="280" cy="170" r="40"/>
+<text class="g-lbl" x="280" y="226" text-anchor="middle">Солнце</text>
+<rect class="g-body" x="464" y="162" width="18" height="18"/>
+<text class="g-lbl" x="473" y="206" text-anchor="middle">Cassini</text>
+<path class="g-ac" d="M110,168 Q280,40 456,168"/>
+<text class="g-lbl" x="280" y="58" text-anchor="middle">радиосигнал</text>
+<text class="g-lbl" x="280" y="262" text-anchor="middle">солнечное соединение</text>
+<text class="g-lbl" x="280" y="288" text-anchor="middle">сдвиг частоты и задержка → γ</text>
+<text class="g-lbl" x="280" y="310" text-anchor="middle">проверка ОТО</text>
+</svg>`;
+
+const F_SYMM = `<svg viewBox="0 0 560 320" role="img" aria-label="Потенциал поля при высокой и низкой плотности">
+<rect class="g-th" x="30" y="50" width="230" height="220" rx="6"/>
+<rect class="g-th" x="300" y="50" width="230" height="220" rx="6"/>
+<path class="g-ln" d="M50,70 Q150,300 250,70"/>
+<circle class="g-pt" cx="150" cy="185" r="5"/>
+<path class="g-ac" d="M320,70 C340,230 370,230 390,200 C410,170 430,90 445,90 C460,90 470,200 490,200 C510,200 520,120 525,70"/>
+<circle class="g-pt" cx="390" cy="200" r="5"/><circle class="g-pt" cx="490" cy="200" r="5"/>
+<text class="g-lbl-b" x="145" y="36" text-anchor="middle">высокая плотность</text>
+<text class="g-lbl-b" x="415" y="36" text-anchor="middle">низкая плотность</text>
+<text class="g-lbl" x="145" y="296" text-anchor="middle">min φ = 0: сила выключена</text>
+<text class="g-lbl" x="415" y="296" text-anchor="middle">min φ ≠ 0: сила включена</text>
+</svg>`;
+
+const F_X17 = `<svg viewBox="0 0 560 320" role="img" aria-label="Схема перехода ядра и вылета пары e+ e-">
+<circle class="g-body" cx="200" cy="170" r="26"/>
+<text class="g-lbl-b" x="200" y="175" text-anchor="middle">⁸Be*</text>
+<line class="g-ac" x1="200" y1="170" x2="348" y2="196"/>
+<line class="g-ac" x1="200" y1="170" x2="104" y2="55"/>
+<path class="g-ln" d="M268.9,182.2 A70,70 0 0 0 154.9,116.4"/>
+<text class="g-lbl" x="262" y="104">θ ≈ 140°</text>
+<text class="g-lbl-b" x="362" y="202">e⁺</text>
+<text class="g-lbl-b" x="58" y="50">e⁻</text>
+<text class="g-lbl" x="280" y="262" text-anchor="middle">переход 18,15 МэВ</text>
+<text class="g-lbl" x="280" y="288" text-anchor="middle">угол раскрытия пары (схема)</text>
+<text class="g-lbl" x="280" y="310" text-anchor="middle">данные заявлены авторами</text>
+</svg>`;
+
+const F_EOT = `<svg viewBox="0 0 560 320" role="img" aria-label="Вид сверху: аттрактор и маятник; шкала длины волны">
+<circle class="g-th" cx="150" cy="160" r="118" stroke-dasharray="14 8"/>
+<circle class="g-body" cx="150" cy="160" r="56"/>
+<circle class="g-pt" cx="122" cy="160" r="11"/>
+<circle class="g-fill-ink" cx="178" cy="160" r="11"/>
+<text class="g-lbl" x="150" y="234" text-anchor="middle">маятник</text>
+<text class="g-lbl" x="150" y="36" text-anchor="middle">аттрактор (узор масс)</text>
+<line class="g-ln" x1="268" y1="160" x2="300" y2="160"/>
+<text class="g-lbl" x="306" y="156">зазор</text>
+<text class="g-lbl" x="306" y="176">52 мкм – 3 мм</text>
+<line class="g-ln" x1="440" y1="40" x2="440" y2="280"/>
+<line class="g-ln" x1="432" y1="40" x2="448" y2="40"/><text class="g-lbl" x="456" y="46">1 км</text>
+<line class="g-ln" x1="432" y1="120" x2="448" y2="120"/><text class="g-lbl" x="456" y="126">1 м</text>
+<line class="g-ln" x1="432" y1="200" x2="448" y2="200"/><text class="g-lbl" x="456" y="206">1 мм</text>
+<line class="g-ln" x1="432" y1="280" x2="448" y2="280"/><text class="g-lbl" x="456" y="286">1 мкм</text>
+<rect class="g-fill-ac-soft" x="432" y="238" width="16" height="42"/>
+<text class="g-lbl" x="456" y="246">λ &lt; 38,6 мкм</text>
+<text class="g-lbl" x="20" y="306">исключено при силе гравитационной величины; большие λ — слабее (схема)</text>
+</svg>`;
+
+const F_MICRO = `<svg viewBox="0 0 560 320" role="img" aria-label="Схема спутника MICROSCOPE с двумя тестовыми телами">
+<path class="g-fill-soft" d="M0,300 Q280,200 560,300 L560,320 L0,320 Z"/>
+<rect class="g-body" x="190" y="60" width="180" height="110" rx="8"/>
+<circle class="g-ln" cx="280" cy="115" r="40"/>
+<circle class="g-pt" cx="280" cy="115" r="20"/>
+<text class="g-lbl" x="280" y="48" text-anchor="middle">спутник</text>
+<line class="g-ln" x1="318" y1="92" x2="400" y2="60"/><text class="g-lbl" x="404" y="64">Ti (внешнее)</text>
+<line class="g-ln" x1="300" y1="115" x2="400" y2="140"/><text class="g-lbl" x="404" y="144">Pt (внутреннее)</text>
+<text class="g-lbl" x="280" y="214" text-anchor="middle">разница ускорений Ti и Pt</text>
+<text class="g-lbl-b" x="280" y="250" text-anchor="middle">η(Ti, Pt) = (−1,5 ± 2,3 ± 1,5)·10⁻¹⁵</text>
+<text class="g-lbl" x="280" y="278" text-anchor="middle">нарушения WEP не найдено</text>
+</svg>`;
+
+const F_RING = `<svg viewBox="0 0 560 320" role="img" aria-label="Схема накопительного кольца для мюонов">
+<circle class="g-ln" cx="150" cy="160" r="100"/>
+<text class="g-lbl" x="150" y="156" text-anchor="middle">магнитное поле</text>
+<text class="g-lbl" x="150" y="176" text-anchor="middle">кольцо</text>
+<circle class="g-pt" cx="250" cy="160" r="7"/>
+<line class="g-ln" x1="250" y1="160" x2="250" y2="134"/><polygon class="g-fill-mut" points="244,138 256,138 250,128"/>
+<rect class="g-body" x="268" y="128" width="22" height="64" rx="3"/>
+<text class="g-lbl" x="279" y="214" text-anchor="middle">детекторы</text>
+<text class="g-lbl" x="320" y="120">прецессия спина:</text>
+<text class="g-lbl" x="320" y="142">частота ω_a</text>
+<text class="g-lbl" x="320" y="168">a_μ из ω_a и поля</text>
+<text class="g-lbl" x="320" y="194">мюоны распадаются на e⁺</text>
+<text class="g-lbl" x="280" y="306" text-anchor="middle">принцип измерения (схема, не в масштабе)</text>
+</svg>`;
+
+/* ---------- графики из данных (статусы — в подписях) ---------- */
+function genDESI() {
+  const rows = [['DESI + CMB', 3.1, 'ok'], ['+ Pantheon+', 2.8, 'ok'], ['+ Union3', 3.8, 'ok'], ['+ DESY5', 4.2, 'ok'], ['+ DES-Dovekie', 3.2, 'ok'], ['DESI отдельно (пересчёт)', 1.7, 'warn']];
+  const x0 = 230, x1 = 530, max = 5;
+  const sx = v => x0 + (v / max) * (x1 - x0);
+  let s = `<svg viewBox="0 0 560 320" role="img" aria-label="Значимость предпочтения эволюционирующей тёмной энергии по комбинациям данных">`;
+  for (let v = 0; v <= 5; v++) s += `<line class="g-th" x1="${sx(v)}" y1="26" x2="${sx(v)}" y2="270"/><text class="g-lbl" x="${sx(v)}" y="292" text-anchor="middle">${v}σ</text>`;
+  s += `<line class="g-ac-d" x1="${sx(5)}" y1="20" x2="${sx(5)}" y2="270"/><text class="g-lbl" x="${sx(5) - 4}" y="16" text-anchor="end">5σ — порог открытия</text>`;
+  rows.forEach((r, i) => {
+    const y = 40 + i * 40, w = sx(r[1]) - x0;
+    s += `<text class="g-lbl" x="8" y="${y + 15}">${r[0]}</text>`;
+    s += r[2] === 'warn'
+      ? `<rect x="${x0}" y="${y}" width="${w}" height="22" fill="none" style="stroke:var(--warn-text)" stroke-width="2" stroke-dasharray="4 3"/>`
+      : `<rect x="${x0}" y="${y}" width="${w}" height="22" class="g-fill-ac"/>`;
+    s += `<text class="g-lbl-b" x="${x0 + w + 8}" y="${y + 16}">${r[1].toFixed(1).replace('.', ',')}σ</text>`;
+  });
+  return s + `</svg>`;
+}
+
+function genG2() {
+  const L = 116591700, R = 116592150, x0 = 40, x1 = 530;
+  const sx = v => x0 + (v - L) / (R - L) * (x1 - x0);
+  const rows = [
+    { n: 'WP2020 · НЕ ПРОВЕРЕНО · 116 591 810 ± 43', v: 116591810, e: 43, y: 110, warn: true },
+    { n: 'WP25 · СВЕРЕНО · 116 592 033 ± 62', v: 116592033, e: 62, y: 180 },
+    { n: 'Fermilab 2025 · СВЕРЕНО · 116 592 070,5 ± 14,8', v: 116592070.5, e: 14.8, y: 250 }
+  ];
+  let s = `<svg viewBox="0 0 560 320" role="img" aria-label="Магнитный момент мюона: эксперимент и два теоретических эталона, ось смещена">`;
+  s += `<line class="g-ln" x1="${x0}" y1="290" x2="${x1}" y2="290"/>`;
+  [116591800, 116591900, 116592000, 116592100].forEach(t => {
+    const x = sx(t);
+    s += `<line class="g-th" x1="${x}" y1="60" x2="${x}" y2="290"/><text class="g-lbl" x="${x}" y="308" text-anchor="middle">${String(t).replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3')}</text>`;
+  });
+  rows.forEach(r => {
+    const x = sx(r.v), xl = sx(r.v - r.e), xr = sx(r.v + r.e);
+    s += `<text class="g-lbl-b" x="${x0}" y="${r.y - 22}">${r.n}</text>`;
+    s += `<line class="g-bar" x1="${xl}" y1="${r.y}" x2="${xr}" y2="${r.y}"/><line class="g-bar" x1="${xl}" y1="${r.y - 7}" x2="${xl}" y2="${r.y + 7}"/><line class="g-bar" x1="${xr}" y1="${r.y - 7}" x2="${xr}" y2="${r.y + 7}"/>`;
+    s += `<circle class="${r.warn ? 'g-pt-warn' : 'g-pt-ok'}" cx="${x}" cy="${r.y}" r="7"/>`;
+  });
+  return s + `</svg>`;
+}
+
+/* ---------- содержание: эпохи, опыты, страницы ---------- */
+const EV = [
+  { id: '1889', year: '1889', era: 0, title: 'Крутильные весы',
+    lede: 'Одинаково ли падают разные вещества? Этвёш сравнивал их ускорения и смотрел, как поворачивается коромысло.',
+    src: 'сводный файл, §2 этап 0; источники A, B, C',
+    subs: [{ title: 'Крутильные весы Этвёша', badges: [['ok', 'Сверено']],
+      device: 'Коромысло с двумя телами разного состава на тонкой нити. Поворот читают по зеркалу или лучу света.',
+      steps: ['Два тела разного состава закреплены на коромысле, которое висит на нити.', 'Гравитация тянет оба тела. Если ускорения разные, коромысло поворачивается.', 'Поворот считают по зеркалу. Опыт повторяют с разными веществами.'],
+      result: ['Авторы не заявили о нарушении принципа эквивалентности (EP).', 'Опыт стал основой всех последующих проверок EP.'],
+      imgs: [{ f: '1889_torsion-balance.jpg', alt: 'Крутильные весы Этвёша в лаборатории XIX века', cap: 'Иллюстрация: крутильные весы Этвёша' }],
+      figs: [{ kind: 'schema', cap: 'Вид сбоку, без масштаба.', svg: F_TORSION }] }] },
+  { id: '1922', year: '1922', era: 0, title: 'Итог опытов',
+    lede: 'Итоговая работа Этвёша, Пекара и Фекете. Точность опытов около 10⁻⁹.',
+    src: 'сводный файл, §2 этап 0; A, B, C',
+    subs: [{ title: 'Опыты 1922 года', badges: [['warn', 'НЕ ПРОВЕРЕНО']],
+      device: 'Тот же принцип. Установка в деревянном шкафу, отсчёт через телескоп.',
+      steps: ['Сравнивают ускорения тел из разных веществ.', 'Отклонения сравнивают с нулём: нарушение дало бы поворот коромысла.'],
+      result: ['Точность около 10⁻⁹. Число ещё не сверено с Ann. Phys., 1922.', 'Авторы не заявили о нарушении EP.'],
+      imgs: [{ f: '1922_eotvos-1922.jpg', alt: 'Опыт 1922 года: крутильные весы в деревянном шкафу', cap: 'Иллюстрация: опыт 1922 года' }],
+      figs: [{ kind: 'schema', cap: 'Тот же принцип, что и в 1889 году.', svg: F_TORSION }] }] },
+  { id: '1961', year: '1961', era: 1, title: 'Бранс и Дикке',
+    lede: 'Гравитация описывается не только метрикой, но и скалярным полем. Параметр ω задаёт силу связи.',
+    src: 'сводный файл, §5; Brans & Dicke (1961), Phys. Rev. 124, 925',
+    subs: [{ title: 'Скалярная гравитация', badges: [['ok', 'Сверено'], ['lim', 'Ограничение']],
+      device: 'Математическая модель, не прибор: гравитация с метрикой и скалярным полем.',
+      steps: ['Гравитационная постоянная становится полем φ.', 'Параметр ω задаёт, насколько скаляр связан с веществом.', 'При ω → ∞ теория переходит в ОТО.', 'Ограничение на ω даёт радиосигнал Cassini (2003).'],
+      result: ['Cassini: ω > 4·10⁴ (ограничение, сверено).'],
+      imgs: [{ f: '1961_brans-dicke.jpg', alt: 'Концепт: сетка пространства изгибается вокруг масс, за ней слабое скалярное поле', cap: 'Иллюстрация (концепт): геометрия и скалярное поле' }],
+      figs: [{ kind: 'schema', cap: 'Связь метрики и скалярного поля. Шкала ω иллюстративная.', svg: F_BD }] }] },
+  { id: '1984', year: '1984', era: 1, title: 'Муди и Вильчек',
+    lede: 'Обмен лёгкой частицей между спинами даёт силу, которая зависит от их ориентации.',
+    src: 'сводный файл, §2, §5; Moody & Wilczek (1984), PRD 30, 130',
+    subs: [{ title: 'Спин-зависимые силы', badges: [['ok', 'Сверено']],
+      device: 'Теоретическая работа: силы, которые зависят от ориентации спинов.',
+      steps: ['Источник и пробное тело имеют спины.', 'Обмен псевдоскаляром (например, аксионом) даёт силу, зависящую от спинов.', 'Такие силы ищут спиновыми маятниками и магнитометрами.'],
+      result: ['Концепция сверена по обзорам. Конкретных значений здесь нет.'],
+      imgs: [{ f: '1984_spin-force.jpg', alt: 'Концепт: два тела со спинами обмениваются лёгкой частицей', cap: 'Иллюстрация (концепт): спин-зависимый обмен' }],
+      figs: [{ kind: 'schema', cap: 'Форма взаимодействия, не данные.', svg: F_SPIN }] }] },
+  { id: '1986', year: '1986', era: 1, title: 'Переанализ архива',
+    lede: 'Корреляция ускорения с барионным числом. Отсюда название «пятая сила».',
+    src: 'сводный файл, §2 этап 1, §3; Fischbach et al. (1986), PRL 56, 3',
+    subs: [{ title: 'Корреляция в архивных данных', badges: [['ok', 'Сверено'], ['closed', 'Отвергнуто'], ['warn', 'Не проверено']],
+      device: 'Архивные данные опыта Этвёша (1922). Новый эксперимент не ставили.',
+      steps: ['Данные опытов Этвёша переанализированы.', 'Ускорения сравнивают с величиной B/μ: барионное число на массу.', 'Корреляцию трактуют как силу около 1% гравитации.'],
+      result: ['PRL 56, 3 (6 января 1986): сверено.', 'Радиус действия: от десятков метров до сотен. Не проверено.', 'Гипотезу отвергли в 1990-х опыты 1987–1994 годов.'],
+      note: 'Корреляция архивная. Это не новый опыт.',
+      imgs: [{ f: '1986_archive-data.jpg', alt: 'Старые лабораторные записи с графиком и медным прибором на столе', cap: 'Иллюстрация: переанализ архивных данных' }],
+      figs: [{ kind: 'schema', cap: 'Условные точки. Реальные данные — архивные таблицы опытов Этвёша.', svg: F_SCATTER }] }] },
+  { id: '1992', year: '1992', era: 1, title: 'Три метода',
+    lede: 'Гипотезу проверяли тремя способами одновременно. Один ложный сигнал оказался ошибкой рельефа.',
+    src: 'сводный файл, §2 этап 2, §3; Fischbach & Talmadge (1992), Nature 356, 207',
+    subs: [
+      { tab: 'Метод 1 · весы', title: 'Лабораторные весы', badges: [['lim', 'Ограничение'], ['ok', 'Сверено']],
+        device: 'Крутильный маятник в вакуумной камере (Eöt-Wash, Университет Вашингтона). Тела из разных металлов.',
+        steps: ['Два тела разного состава висят на тонкой нити.', 'Вращающийся источник создаёт переменное поле.', 'Поворот маятника показывает, есть ли композиционная сила.'],
+        result: ['Сигнала нет (опыты 1987–1994 годов).', 'Исходная гипотеза исключена в предложенном диапазоне.'],
+        imgs: [{ f: '1992-a_eot-wash-pendulum.jpg', alt: 'Крутильный маятник в вакуумной камере, два тела из разных металлов', cap: 'Иллюстрация: метод 1, лабораторные весы' }], figs: [] },
+      { tab: 'Метод 2 · башня', title: 'Телебашня', badges: [['closed', 'Отозвано']],
+        device: 'Башня WTVD около 600 м, Гарнер, Северная Каролина (1988).',
+        steps: ['Гравитацию измеряют на разных высотах башни.', 'Сравнивают с расчётом по рельефу и плотности пород.', 'Заявку пересчитывают после учёта рельефа.'],
+        result: ['Остаток у вершины заявлен около 5σ (значимость не проверена).', 'После учёта рельефа заявку сняли.'],
+        imgs: [{ f: '1992-b_wtvd-tower.jpg', alt: 'Высокая телебашня в сельской местности на закате', cap: 'Иллюстрация: метод 2, башня WTVD' }], figs: [] },
+      { tab: 'Метод 3 · шахта', title: 'Шахта', badges: [['closed', 'Снято']],
+        device: 'Гравиметр на платформе под землёй, австралийские шахты (1980-е).',
+        steps: ['Гравиметр ставят на платформе на глубине.', 'Сравнивают силу тяжести с расчётом по поверхностной модели.', 'Аномалию пересчитывают с учётом плотности пород и рельефа.'],
+        result: ['G выше примерно на 0,5–1,5% (по сводкам).', 'Аномалию объяснили неоднородностью пород и рельефом.'],
+        imgs: [{ f: '1992-c_mine-gravimeter.jpg', alt: 'Шахта, гравиметр на платформе на глубине', cap: 'Иллюстрация: метод 3, измерения в шахте' }], figs: [] }
+    ] },
+  { id: '1998', year: '1998', era: 2, title: 'Тёмная энергия',
+    lede: 'Ускоренное расширение Вселенной. Дальше — квинтэссенция: лёгкое поле, медленно меняющееся.',
+    src: 'сводный файл, §2 этап 3; A, B, C',
+    subs: [{ title: 'Сверхновые Ia', badges: [['ok', 'Сверено']],
+      device: 'Сверхновые типа Ia как стандартные свечи: яркость и красное смещение.',
+      steps: ['Измеряют яркость сверхновых Ia и их красное смещение.', 'Сравнивают с моделью без ускорения и с ускорением.', 'Два коллектива: High-Z (Рисс, Шмидт) и Supernova Cosmology Project (Перлмуттер).'],
+      result: ['Ускорение расширения: сверено по нескольким источникам.', 'Квинтэссенция: Wetterich (1988), Ratra и Peebles (1988), Caldwell, Dave, Steinhardt (1998).'],
+      imgs: [{ f: '1998_supernova.jpg', alt: 'Ночная обсерватория, поле галактик и одна яркая сверхновая', cap: 'Иллюстрация: сверхновые Ia' }],
+      figs: [{ kind: 'schema', cap: 'Точки условные.', svg: F_HUBBLE }] }] },
+  { id: '2003', year: '2003', era: 2, title: 'Радиосвязь с Cassini',
+    lede: 'Сигнал проходит рядом с Солнцем. Его задержка и сдвиг частоты проверяют ОТО.',
+    src: 'сводный файл, §4, §13; Bertotti, Iess, Tortora (2003), Nature 425, 374',
+    subs: [{ title: 'Cassini и солнечное соединение', badges: [['lim', 'Ограничение'], ['ok', 'Сверено']],
+      device: 'Зонд Cassini и радиолуч при солнечном соединении.',
+      steps: ['Радиосигнал идёт рядом с Солнцем.', 'Измеряют доплеровский сдвиг частоты и задержку сигнала.', 'Сравнивают с предсказанием ОТО через параметр γ.'],
+      result: ['γ − 1 = (2,1 ± 2,3)·10⁻⁵: согласие с ОТО.', 'Это проверка ОТО, а не прямой поиск пятой силы.'],
+      imgs: [{ f: '2003_cassini-radio.jpg', alt: 'Зонд с большой антенной, радиолуч огибает Солнце', cap: 'Иллюстрация: радиосвязь Cassini' }],
+      figs: [{ kind: 'schema', cap: 'Схема радиосвязи. Без масштаба.', svg: F_CASSINI }] }] },
+  { id: '2004', year: '2004', era: 2, title: 'Хамелеон', lede: 'Масса поля зависит от плотности среды: в Земле поле прячется, в разреженном космосе работает.', src: 'сводный файл, §2 этап 3, §5; Khoury & Weltman (2004), PRL 93, 171104', subs: [{ title: 'Экранированное скалярное поле', badges: [['ok', 'Сверено'], ['lim', 'Ограничение']], device: 'Теоретическая модель, не прибор: скалярное поле с массой, которая растёт с плотностью среды.', steps: ['Масса поля зависит от локальной плотности вещества.', 'В плотной среде поле почти не выходит за тонкую оболочку у поверхности тела.', 'В разреженном космосе поле дальнодействующее и может влиять на движение тел.', 'Проверяют атомными интерферометрами и левитационными датчиками.'], result: ['PRL 93, 171104 (2004): сверено.', 'Канонический хамелеон в вакууме сильно ограничен атомной интерферометрией (2015–2019).'], imgs: [], figs: [] }] },
+  { id: '2009', year: '2009', era: 2, title: 'Галилеон', lede: 'Скалярное поле с производными самодействиями: сила подавляется внутри радиуса Вайнштейна.', src: 'сводный файл, §5; Nicolis, Rattazzi, Trincherini (2009), PRD 79, 064036', subs: [{ title: 'Галилеон и механизм Вайнштейна', badges: [['ok', 'Сверено'], ['warn', 'Не проверено']], device: 'Теоретическая модель, не прибор. Механизм Вайнштейна предложен в 1972 году для массивной гравитации.', steps: ['В действие входят нелинейные производные члены.', 'Внутри радиуса Вайнштейна нелинейная кинетика подавляет градиент поля.', 'Ограничения дают Солнечная система и наблюдения гравитационных волн (GW170817).'], result: ['PRD 79, 064036 (2009): сверено.', 'GW170817 исключил варианты, которые меняют скорость тензорных волн. Общие галилеоны ограничены не полностью.'], imgs: [], figs: [] }] },
+  { id: '2010', year: '2010', era: 2, title: 'Симметрон',
+    lede: 'Скалярное поле, которое «выключает» силу в плотной среде. Так объясняют, почему её не видно на Земле.',
+    src: 'сводный файл, §5; Hinterbichler & Khoury (2010), PRL 104, 231301',
+    subs: [{ title: 'Поле и плотность среды', badges: [['ok', 'Сверено'], ['warn', 'Не проверено']],
+      device: 'Теоретическая модель: поле, связанное с плотностью среды. Проверяют левитационными датчиками и атомами.',
+      steps: ['При высокой плотности минимум поля в нуле, сила выключена.', 'При низкой плотности симметрия нарушена, сила включена.', 'Проверяют левитационными датчиками и атомами.'],
+      result: ['Hinterbichler & Khoury, PRL 104, 231301 (2010): сверено.', 'Левитационные датчики сужают область параметров: точные границы не проверены.'],
+      imgs: [{ f: '2010_symmetron-potential.jpg', alt: 'Концепт: две формы потенциала, одна чаша и одна двухъямная', cap: 'Иллюстрация (концепт): симметрон при разной плотности' }],
+      figs: [{ kind: 'schema', cap: 'Потенциал поля при двух плотностях среды.', svg: F_SYMM }] }] },
+  { id: '2015', year: '2015', era: 3, title: 'Атомная интерферометрия', lede: 'Атомы как пробные массы: первый лабораторный поиск экранированного поля.', src: 'сводный файл, §2 этап 4, §4; Hamilton et al. (2015), Science 349, 849; arXiv:1502.03888', subs: [{ title: 'Интерферометр в Беркли', badges: [['lim', 'Ограничение'], ['ok', 'Сверено']], device: 'Вакуумная камера с облаком холодных атомов цезия рядом с массивным источником (Беркли, Мюллер и соавт.).', steps: ['Атомы падают и интерферируют на лазерных импульсах.', 'Массивный источник рядом меняет фазу интерференции.', 'Фазу сравнивают с предсказанием моделей хамелеона.'], result: ['Science 349, 849 (2015): сверено по препринту и ссылкам.', 'Ограничения на хамелеон у источника, сильные для выбранного класса моделей.'], imgs: [{ f: '2015_atom-interferometer.jpg', alt: 'Вакуумная камера атомного интерферометра: лазерные лучи в облаке холодных атомов', cap: 'Иллюстрация: атомная интерферометрия' }], figs: [] }] },
+  { id: '2016', year: '2016', era: 3, title: 'X17 в ядерных переходах',
+    lede: 'Избыток пар e⁺e⁻ в ядерных переходах. Заявлен авторами и пока не подтверждён независимо.',
+    src: 'сводный файл, §2 этап 4, §4; A, B, C, D',
+    subs: [{ title: 'Переходы ⁸Be, ⁴He, ¹²C', badges: [['open', 'Открыто'], ['warn', 'Не проверено']],
+      device: 'Ускорительная установка ATOMKI (Дебрецен): переходы ⁸Be, ⁴He, ¹²C.',
+      steps: ['Возбуждённое ядро ⁸Be (переход 18,15 МэВ) испускает пару e⁺e⁻.', 'Измеряют угол раскрытия пары и её инвариантную массу.', 'Сравнивают с расчётом внутренней парной конверсии (IPC).'],
+      result: ['PRL 116, 042501 (2016): сверено.', '6,8σ заявлено авторами: значимость не проверена.', 'Протофобная модель Фенга и соавт.: PRL 117, 071803 (2016).'],
+      imgs: [{ f: '2016_tandem-accelerator.jpg', alt: 'Зал ускорителя с большим электростатическим тандемом', cap: 'Иллюстрация: ускорительная установка' },
+             { f: '2016-b_nucleus-pair.jpg', alt: 'Концепт: возбуждённое ядро испускает электрон и позитрон', cap: 'Иллюстрация (концепт): распад ядра' }],
+      figs: [{ kind: 'schema', cap: 'Переход ⁸Be. Угол заявлен авторами.', svg: F_X17 }] }] },
+  { id: '2018', year: '2018', era: 3, title: 'GRAVITY: звезда S2', lede: 'Орбита звезды у Стрельца A* проверяет гравитацию в сильном поле.', src: 'сводный файл, §3, §6; GRAVITY (2018), A&A 615, L15 (по памяти); GRAVITY+ (2026)', subs: [{ title: 'Звезда S2 у чёрной дыры', badges: [['warn', 'Не проверено'], ['lim', 'Ограничение']], device: 'Четыре телескопа VLT (ESO, Чили) объединены в интерферометр GRAVITY.', steps: ['Интерферометр измеряет положение звезды S2 с высокой точностью.', 'Следят за орбитой S2 вокруг чёрной дыры в центре Галактики.', 'Сравнивают с предсказаниями ОТО и с модификациями гравитации.'], result: ['Гравитационное красное смещение и прецессия S2 согласуются с ОТО (по памяти, не проверено).', 'Ограничения на Юкаву у Sgr A*: см. 2026, препринт GRAVITY+.'], imgs: [{ f: '2018_gravity-s2.jpg', alt: 'Четыре телескопа на горе объединены в интерферометр, над ними орбита звезды', cap: 'Иллюстрация: GRAVITY и звезда S2' }], figs: [] }] },
+  { id: '2019', year: '2019', era: 3, title: 'Rb-интерферометр', lede: 'Атомы рубидия падают сквозь лазерные импульсы: ещё одна проверка экранированных полей.', src: 'сводный файл, §4; Sabulsky et al. (2019), PRL 123, 061102', subs: [{ title: 'Интерферометр в Имперском колледже', badges: [['lim', 'Ограничение'], ['ok', 'Сверено']], device: 'Вертикальная вакуумная трубка с атомами рубидия (Imperial College London, Хиндс и соавт.).', steps: ['Облако атомов подбрасывают и ловят лазерными импульсами.', 'Фазу интерференции сравнивают с расчётом без новой силы.', 'Результат ограничивает хамелеон и симметрон для выбранной геометрии.'], result: ['PRL 123, 061102 (2019): сверено.', 'Сигнала нет. Ограничения касаются заданных моделей, а не всех форм силы.'], imgs: [{ f: '2019_rb-interferometer.jpg', alt: 'Вертикальная трубка: атомы рубидия падают сквозь лазерные импульсы', cap: 'Иллюстрация: интерферометр на рубидии' }], figs: [] }] },
+  { id: '2020', year: '2020', era: 3, title: 'Eöt-Wash: короткие расстояния',
+    lede: 'Самые короткие расстояния, на которых проверен закон обратных квадратов.',
+    src: 'сводный файл, §4, §6; Lee et al. (2020), PRL 124, 101101',
+    subs: [{ title: 'Крутильный маятник и аттрактор', badges: [['lim', 'Ограничение'], ['ok', 'Сверено']],
+      device: 'Крутильный маятник и вращающийся аттрактор с узором масс. Университет Вашингтона, Сиэтл.',
+      steps: ['Аттрактор с узором масс создаёт переменное поле.', 'Крутильный маятник с тестовыми телами измеряет отклик.', 'Зазоры от 52 мкм до 3 мм; ищут отклонение от закона 1/r².'],
+      result: ['λ < 38,6 мкм исключено при гравитационной силе (95% CL): PRL 124, 101101 (2020).', 'Для больших λ ограничения слабее.'],
+      imgs: [{ f: '2020_eot-wash-attractor.jpg', alt: 'Вид сверху: вращающийся аттрактор под крутильным маятником', cap: 'Иллюстрация: Eöt-Wash, аттрактор и маятник' }],
+      figs: [{ kind: 'schema', cap: 'Вид сверху и шкала λ с исключённой зоной.', svg: F_EOT }] }] },
+  { id: '2021', year: '2021', era: 4, title: 'Решёточный HVP (BMW)', lede: 'Адронный вклад в магнитный момент мюона, посчитанный на решётке из первых принципов.', src: 'сводный файл, §2 этап 5, §3; Borsanyi et al. (2021), Nature 593, 51', subs: [{ title: 'Решёточная КХД', badges: [['ok', 'Сверено']], device: 'Вычисления на суперкомпьютерах: решётка КХД (lattice QCD), а не прибор.', steps: ['Кварки и глюоны моделируют на четырёхмерной решётке.', 'Считают корреляционную функцию электромагнитных токов.', 'Сравнивают результат с данными e⁺e⁻ и с экспериментом.'], result: ['Nature 593, 51 (2021): сверено.', 'Решёточный HVP выше дисперсионного и ближе к эксперименту.'], imgs: [{ f: '2021_lattice-grid.jpg', alt: 'Концепт: четырёхмерная решётка светящихся узлов', cap: 'Иллюстрация (концепт): решёточная КХД' }], figs: [] }] },
+  { id: '2022', year: '2022', era: 4, title: 'MICROSCOPE',
+    lede: 'Тест принципа эквивалентности на орбите. Титан и платина падают одинаково с точностью около 10⁻¹⁵.',
+    src: 'сводный файл, §2 этап 5, §4; Touboul et al. (2022), PRL 129, 121102',
+    subs: [{ title: 'Спутник с двумя телами', badges: [['lim', 'Ограничение'], ['ok', 'Сверено']],
+      device: 'Спутник CNES/ONERA: два тела из титана и платины на орбите (2016–2018).',
+      steps: ['Два тела в одной капсуле на орбите.', 'Спутник компенсирует сопротивление атмосферы.', 'Измеряют дифференциальное ускорение тел.'],
+      result: ['η(Ti, Pt) = (−1,5 ± 2,3 стат ± 1,5 сист)·10⁻¹⁵ (PRL 129, 121102).', 'Нарушения принципа эквивалентности не найдено.'],
+      imgs: [{ f: '2022_microscope-satellite.jpg', alt: 'Спутник на орбите над Землёй', cap: 'Иллюстрация: спутник MICROSCOPE' }],
+      figs: [{ kind: 'schema', cap: 'Спутник с двумя телами. Без масштаба.', svg: F_MICRO }] }] },
+  { id: '2022-b', year: '2022, LHCb', era: 4, title: 'LHCb: R_K пересмотрен', lede: 'Отношение распадов B-мезонов в мюоны и электроны: аномалия исчезла после пересмотра фона.', src: 'сводный файл, §3 блок 6, §4; LHCb (2023), PRL 131, 051803; arXiv:2212.09152', subs: [{ title: 'Распады B → Kℓℓ', badges: [['closed', 'Снято'], ['ok', 'Сверено']], device: 'Детектор LHCb на Большом адронном коллайдере (CERN), данные Run 1 и Run 2.', steps: ['Считают распады B → Kμμ и B → Kee.', 'Пересматривают фон: адроны, ошибочно принятые за электроны.', 'Сравнивают отношение R_K с предсказанием Стандартной модели.'], result: ['R_K = 0,846 (2021): около 3,1σ от SM, сверено.', 'R_K = 0,949 (+0,042/−0,041 стат, ±0,022 сист) в 2022 г.: около 1σ от SM, сверено.', 'Глобальные фиты B-аномалий: часть ещё около 4σ (по сводкам, не проверено).'], imgs: [{ f: '2022-b_lhcb-detector.jpg', alt: 'Передний спектрометр LHC в подземной пещере, слои детектора вокруг трубы пучка', cap: 'Иллюстрация: детектор LHCb' }], figs: [] }] },
+  { id: '2023', year: '2023–24', era: 4, title: 'CMD-3 и адронное сечение', lede: 'Коллайдер в Новосибирске переизмерил сечение рождения пары пионов и поставил под сомнение старые данные.', src: 'сводный файл, §3 блок 1, §4; CMD-3, PRL 132, 231903 (2024); PRD 109, 112002 (2024)', subs: [{ title: 'ВЭПП-2000 и детектор CMD-3', badges: [['conf', 'Спорно'], ['ok', 'Сверено']], device: 'Электрон-позитронный коллайдер ВЭПП-2000 и детектор CMD-3, Институт ядерной физики СО РАН (Новосибирск).', steps: ['Электроны и позитроны сталкиваются при разных энергиях.', 'Считают сечение e⁺e⁻ → ππ.', 'Сравнивают с KLOE, BaBar и решёточными расчётами.'], result: ['Сечение CMD-3 согласуется с решёткой и конфликтует прежде всего с KLOE: сверено.', 'Конфликт наборов данных не решён: спорно.'], imgs: [{ f: '2023_cmd3-collider.jpg', alt: 'Кольцо электрон-позитронного коллайдера в бетонном зале, цилиндр детектора у точки столкновения', cap: 'Иллюстрация: коллайдер ВЭПП-2000 и детектор CMD-3' }], figs: [] }] },
+  { id: '2024', year: '2024', era: 4, title: 'Bennu: орбита астероида', lede: 'Траектория околоземного астероида проверяет силу на расстоянии около астрономической единицы.', src: 'сводный файл, §3, §6; Tsai et al. (2024), Communications Physics; arXiv:2309.13106', subs: [{ title: 'OSIRIS-REx и астероид Бенну', badges: [['lim', 'Ограничение'], ['ok', 'Сверено']], device: 'Аппарат OSIRIS-REx (NASA) и радиолокация астероида Бенну.', steps: ['Измеряют орбиту Бенну по радиосигналам и оптическим наблюдениям 1999–2018 годов.', 'Ищут отклонения, которые дала бы пятая сила или ультралёгкое поле.', 'Учитывают эффект Ярковского и возмущения от планет.'], result: ['Нулевой результат, 95% CL: ограничения на ультралёгкие поля около 10⁻¹⁸–10⁻¹⁷ эВ.', 'Апофис (2029) — следующий кандидат по источникам.'], imgs: [{ f: '2024_bennu-spacecraft.jpg', alt: 'Аппарат с манипулятором зависает над каменистой поверхностью астероида', cap: 'Иллюстрация: OSIRIS-REx у астероида Бенну' }], figs: [] }] },
+  { id: '2025-ca', year: '2025, Ca', era: 4, title: 'King-плот в кальции', lede: 'Изотопные сдвиги в ионах кальция: нелинейность есть, пятой силы в ней не подтверждено.', src: 'сводный файл, §3 блок 3, §4; Wilzewski et al. (2025), PRL 134, 233002; arXiv:2412.10277', subs: [{ title: 'Ионы кальция и King-плот', badges: [['conf', 'Спорно'], ['lim', 'Ограничение']], device: 'Линейная ионная ловушка с ионами кальция и лазерами (PTB, ETH Zürich, MPIK Heidelberg).', steps: ['Измеряют оптические переходы у пяти стабильных изотопов кальция (40, 42, 44, 46, 48).', 'Строят King-плот: сдвиги двух переходов должны лежать на прямой.', 'Отклонение объясняют ядерной поляризацией и вторым порядком массового сдвига.'], result: ['Нелинейность около 900σ по препринту: это значимость нелинейности, а не сигнала новой силы.', 'Ограничения на связь электрон–нейтрон для масс от 10 эВ до 10⁷ эВ: сверено.'], imgs: [{ f: '2025-ca_ion-trap.jpg', alt: 'Линейная ионная ловушка, один светящийся ион кальция, два лазерных луча', cap: 'Иллюстрация: ионная ловушка' }], figs: [] }] },
+  { id: '2025-03', year: '2025, март', era: 4, title: 'Тёмная энергия по DESI',
+    lede: 'Тёмная энергия может меняться со временем. Значимость зависит от набора сверхновых.',
+    src: 'сводный файл, §4, §13; DESI Collaboration (2025), arXiv:2503.14738',
+    subs: [{ title: 'Спектроскопический обзор DESI', badges: [['conf', 'Спорно'], ['ok', 'Сверено']],
+      device: 'Спектроскопия галактик на телескопе Mayall (Kitt Peak, США): барионные акустические осцилляции.',
+      steps: ['Спектроскопия галактик даёт масштаб акустических осцилляций (BAO).', 'Данные сочетают с реликтовым излучением (CMB) и сверхновыми.', 'Результат зависит от выбранного набора сверхновых.'],
+      result: ['DESI + CMB: 3,1σ. С сверхновыми: 2,8–4,2σ (arXiv:2503.14738).', 'Пятую силу DESI не измеряет: это интерпретация, а не измерение.'],
+      imgs: [{ f: '2025-03_desi-telescope.jpg', alt: 'Большой телескоп ночью, купол частично открыт', cap: 'Иллюстрация: телескоп DESI' }],
+      figs: [{ kind: 'data', cap: 'Значимость по комбинациям данных. Пунктир — пересчёт отдельной группы, не коллаборация.', svg: genDESI }] }] },
+  { id: '2025-06', year: '2025, июнь', era: 4, title: 'Магнитный момент мюона',
+    lede: 'Эксперимент и два теоретических эталона. Спор снят по теории, конфликт данных остаётся.',
+    src: 'сводный файл, §2 этап 6, §10, §13; PRL 135, 101802; arXiv:2505.21476',
+    subs: [{ title: 'Кольцо накопления мюонов', badges: [['closed', 'Снято'], ['conf', 'Спорно']],
+      device: 'Накопительное кольцо Fermilab: мюоны циркулируют в однородном поле.',
+      steps: ['Мюоны циркулируют в кольце с однородным магнитным полем.', 'Прецессию спина измеряют по электронам распада.', 'Сравнивают с теорией: адронный вклад из данных e⁺e⁻ и из решёточных расчётов.'],
+      result: ['Fermilab: a_μ = 116 592 070,5 ± 14,8 ·10⁻¹¹ (127 ppb), PRL 135, 101802: сверено.', 'WP25: 116 592 033 ± 62 ·10⁻¹¹. Разность около 0,6σ: сверено.', 'Конфликт данных e⁺e⁻ (KLOE, BaBar, CMD-3) не решён: спорно.'],
+      imgs: [{ f: '2025-06_g2-ring.jpg', alt: 'Кольцо накопления мюонов: круговой магнит, детекторы по периметру', cap: 'Иллюстрация: кольцо накопления' }],
+      figs: [{ kind: 'schema', cap: 'Принцип измерения: кольцо и прецессия спина.', svg: F_RING },
+             { kind: 'data', cap: 'a_μ, единицы 10⁻¹¹. Ось смещена. Контур — эталон WP2020, не проверено.', svg: genG2 }] }] },
+  { id: '2026', year: '2026', era: 4, title: 'Проверки X17',
+    lede: 'Пять проверок X17. Сигнала с достаточной значимостью нет. Ни одна не опровергла X17 полностью.',
+    src: 'сводный файл, §4, §10, §13; ТЗ E07',
+    subs: [
+      { tab: 'PADME', title: 'PADME, Фраскати', badges: [['open', 'Открыто'], ['ok', 'Сверено']],
+        device: 'Пучок позитронов на тонкую мишень и сегментированный детектор (INFN Frascati, Италия).',
+        steps: ['Позитроны аннигилируют на мишени: ищут резонанс около 17 МэВ.', 'Энергию пучка сканируют с шагом 0,75 МэВ.'],
+        result: ['16,90 МэВ: около 2,5σ локально, около 1,8–2σ глобально.', 'Данные набраны осенью 2022 года, публикация 2025 года (arXiv:2505.24797).'],
+        imgs: [{ f: '2026-a_padme.jpg', alt: 'Пучок позитронов заканчивается тонкой мишенью, за ней детектор', cap: 'Иллюстрация: PADME' }], figs: [] },
+      { tab: 'NA64', title: 'NA64, CERN', badges: [['lim', 'Ограничение'], ['warn', 'Не проверено']],
+        device: 'Электронный пучок SPS на мишень, за ней калориметры (CERN, Швейцария).',
+        steps: ['Электроны попадают в мишень, и могут рождаться лёгкие частицы.', 'Ищут видимый распад за мишенью.'],
+        result: ['Сигнала нет. Данные 2017–2018 годов, 90% CL.'],
+        imgs: [{ f: '2026-b_na64.jpg', alt: 'Пучок электронов в мишень и стопка калориметрических блоков', cap: 'Иллюстрация: NA64' }], figs: [] },
+      { tab: 'MEG II', title: 'MEG II, PSI', badges: [['lim', 'Ограничение'], ['ok', 'Сверено']],
+        device: 'Детектор MEG II и пучок протонов на литиевую мишень (PSI, Швейцария).',
+        steps: ['Протоны на мишени из ⁷Li: p + ⁷Li → ⁸Be*.', 'Регистрируют пары e⁺e⁻ в детекторе.'],
+        result: ['Сигнала нет. R₁₇.₆ < 1,8·10⁻⁶ (90% CL).', 'EPJC 85, 763 (2025), arXiv:2411.07994.'],
+        imgs: [{ f: '2026-c_meg-ii.jpg', alt: 'Цилиндрический детектор с дрейфовой камерой и калориметром', cap: 'Иллюстрация: MEG II' }], figs: [] },
+      { tab: 'FASER', title: 'FASER, CERN', badges: [['warn', 'Не проверено']],
+        device: 'Детектор в туннеле ЦЕРН примерно в 480 м от ATLAS.',
+        steps: ['Ищут долгоживущие частицы, которые распадаются далеко от точки столкновения.'],
+        result: ['Препринт 2026 (arXiv:2611.03904): название подтверждено, вывод не проверен.'],
+        imgs: [{ f: '2026-d_faser.jpg', alt: 'Длинный туннель ускорителя, в дальнем конце детектор', cap: 'Иллюстрация: FASER' }], figs: [] },
+      { tab: 'E141', title: 'E141, SLAC', badges: [['lim', 'Ограничение'], ['ok', 'Сверено']],
+        device: 'Старый пучок электронов SLAC и поглотитель (пучковый дамп).',
+        steps: ['Переанализ данных старого эксперимента.'],
+        result: ['Долгоживущий X17 исключён при ε_e около 5·10⁻⁵ – 1,7·10⁻⁴ (по расчёту авторов).'],
+        imgs: [{ f: '2026-e_e141.jpg', alt: 'Пучок электронов заканчивается массивным поглотителем', cap: 'Иллюстрация: E141' }], figs: [] }
+    ] }
+];
+
+/* ---------- сборка ---------- */
+const eraBox = document.getElementById('eras');
+const spread = document.getElementById('spread');
+let cur = -1, curSub = 0;
+
+ERAS.forEach((er, i) => {
+  const col = document.createElement('div');
+  col.className = 'era';
+  col.style.setProperty('--e', `var(--e${i})`);
+  col.innerHTML = `<p class="era-name">${er.name}</p><p class="era-years">${er.years}</p><ol class="entries" data-era="${i}"></ol>`;
+  eraBox.appendChild(col);
+});
+
+EV.forEach((e, i) => {
+  const li = document.createElement('li');
+  li.innerHTML = `<button type="button" class="entry" data-i="${i}" aria-current="false"><span class="ey">${e.year}</span><span class="et">${e.title}</span>${e.subs.every(s => !s.imgs.length) ? '<span class="nofoto-tag">нет фото</span>' : ''}</button>`;
+  eraBox.querySelector(`ol[data-era="${e.era}"]`).appendChild(li);
+});
+
+const BADGE = { ok: 'st-ok', lim: 'st-lim', open: 'st-open', conf: 'st-conf', closed: 'st-closed', warn: 'st-warn' };
+function stampsHTML(list) {
+  return list.map(([c, l]) => `<span class="stamp ${BADGE[c]}">${l}</span>`).join('');
+}
+function photoHTML(im, n) {
+  return `<figure class="photo${n > 0 ? ' small' : ''}"><span class="stamp st-data photo-tag">Иллюстрация</span><img src="img/${im.f}" alt="${im.alt}" loading="lazy" decoding="async"><figcaption class="cap">${im.cap}</figcaption></figure>`;
+}
+function figHTML(f) {
+  const svg = typeof f.svg === 'function' ? f.svg() : f.svg;
+  const tag = f.kind === 'schema' ? '<span class="stamp st-schema">Схема</span>' : '<span class="stamp st-data">Данные</span>';
+  return `<figure class="fig">${svg}<figcaption>${tag}<span class="cap">${f.cap}</span></figcaption></figure>`;
+}
+
+function renderSpread(i, sub, animate) {
+  const e = EV[i], s = e.subs[sub];
+  const prev = EV[i - 1], next = EV[i + 1];
+  const tabs = e.subs.length > 1
+    ? `<div class="tabs" role="tablist" aria-label="Методы">${e.subs.map((t, k) => `<button type="button" role="tab" class="tab" data-sub="${k}" aria-selected="${k === sub}">${t.tab}</button>`).join('')}</div>`
+    : '';
+  const imgs = s.imgs.map((im, k) => photoHTML(im, k)).join('') || nanoBox(e.id);
+  const figs = s.figs.map(figHTML).join('');
+  spread.innerHTML = `
+    <div class="page page-l">
+      <p class="kicker">${e.year} · ${ERAS[e.era].name} · стр. ${i + 1}</p>
+      ${tabs}
+      <h2 class="page-title">${s.title}</h2>
+      <p class="lede">${e.lede}</p>
+      <div class="stamps">${stampsHTML(s.badges)}</div>
+      <h3 class="hand-h">Что за прибор</h3>
+      <p>${s.device}</p>
+      <h3 class="hand-h">Как мерили</h3>
+      <ol class="steps">${s.steps.map(x => `<li>${x}</li>`).join('')}</ol>
+      <h3 class="hand-h">Что вышло</h3>
+      <ul class="result">${s.result.map(x => `<li>${x}</li>`).join('')}</ul>
+      ${s.note ? `<p class="note-hand">${s.note}</p>` : ''}
+      <p class="src">Источник: ${e.src}</p>
+      <nav class="pager" aria-label="Соседние опыты">
+        <button type="button" class="pg" data-i="${i - 1}" ${prev ? '' : 'disabled'}>← ${prev ? prev.year : ''}</button>
+        <button type="button" class="pg" data-i="${i + 1}" ${next ? '' : 'disabled'}>${next ? next.year : ''} →</button>
+      </nav>
+    </div>
+    <div class="page page-r">
+      ${imgs}
+      ${figs}
+    </div>`;
+  if (animate) { spread.classList.remove('turn'); void spread.offsetWidth; spread.classList.add('turn'); }
+  document.querySelectorAll('.entry').forEach(b => b.setAttribute('aria-current', String(Number(b.dataset.i) === i)));
+}
+
+function show(i, sub, opts) {
+  if (i < 0 || i >= EV.length) return;
+  const changed = i !== cur || sub !== curSub;
+  if (!changed) return;
+  cur = i; curSub = sub || 0;
+  renderSpread(i, curSub, !!(opts && opts.animate));
+  try { history.replaceState(null, '', '#' + EV[i].id); } catch (_) {}
+  if (opts && opts.scroll) { try { spread.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (_) {} }
+}
+
+document.addEventListener('click', ev => {
+  const pg = ev.target.closest('[data-i]');
+  if (pg && !pg.disabled) { show(Number(pg.dataset.i), 0, { animate: true, scroll: true }); return; }
+  const tab = ev.target.closest('[data-sub]');
+  if (tab) { show(cur, Number(tab.dataset.sub), { animate: true }); }
+});
+
+document.addEventListener('keydown', ev => {
+  if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if (ev.key === 'ArrowRight') show(Math.min(cur + 1, EV.length - 1), 0, { animate: true });
+  if (ev.key === 'ArrowLeft') show(Math.max(cur - 1, 0), 0, { animate: true });
+});
+
+window.addEventListener('hashchange', () => {
+  const idx = EV.findIndex(e => e.id === decodeURIComponent(location.hash.slice(1)));
+  if (idx >= 0) show(idx, 0, { animate: true });
+});
+
+/* ---------- разделы тетради: данные из сводного файла ---------- */
+/* ---------- недостающие иллюстрации: промпты для Нано Банана ---------- */
+const NANO_STYLE = 'Photorealistic scientific editorial illustration, 16:9 composition. Cool neutral palette: blue-grey, steel, off-white, with one warm accent of soft amber light. Soft diffuse light, shallow depth of field, realistic materials and scale, documentary tone, museum-quality. Clean uncluttered frame with calm negative space on one side. No people\'s faces (silhouettes or hands only, and only if needed). No readable text, numbers, logos, brand names, watermarks, or interface overlays. Not sci-fi, not cartoon, not glossy stock photo.';
+const NANO = {
+  '2004': { file: '2004_chameleon.png', concept: true, scene: 'A dense block of matter inside a vacuum chamber, a faint translucent field around it that fades to a long-range glow in the empty space outside; a thin shell near the surface. Calm, minimal.' },
+  '2009': { file: '2009_galileon.png', concept: true, scene: 'Abstract field lines around a sphere that curve sharply inside a central radius and spread out smoothly beyond it, suggesting nonlinear screening. Minimal, blue-grey.' }
+};
+function nanoBox(id) {
+  const n = NANO[id];
+  if (!n) return '<p class="note-hand">Иллюстрации пока нет.</p>';
+  const prompt = NANO_STYLE + (n.concept ? ' Abstract conceptual visualisation, minimal, same palette, no literal text.' : '') + ' ' + n.scene;
+  return `<p class="note-hand">Иллюстрации пока нет. Файл: ${n.file}</p>
+    <details class="prompt-box"><summary>Для редакции: промпт для Нано Банана</summary>
+    <pre>${prompt}</pre><button type="button" class="copy">Скопировать промпт</button></details>`;
+}
+document.addEventListener('click', ev => {
+  const a = ev.target.closest('.copy-addr');
+  if (!a) return;
+  try { navigator.clipboard.writeText(a.dataset.copy).then(() => { a.textContent = 'Адрес скопирован'; }, () => {}); } catch (_) {}
+});
+function selectText(el) { try { const r = document.createRange(); r.selectNodeContents(el); const s = window.getSelection(); s.removeAllRanges(); s.addRange(r); } catch (_) {} }
+document.addEventListener('click', ev => {
+  const b = ev.target.closest('.copy');
+  if (!b) return;
+  const pre = b.parentElement.querySelector('pre');
+  if (!pre) return;
+  try { navigator.clipboard.writeText(pre.textContent).then(() => { b.textContent = 'Скопировано'; }, () => selectText(pre)); } catch (_) { selectText(pre); }
+});
+
+const BST = { ok: 'st-ok', lim: 'st-lim', open: 'st-open', conf: 'st-conf', closed: 'st-closed', warn: 'st-warn', plain: 'st-data' };
+function stm(c, l) { return `<span class="stamp ${BST[c] || 'st-data'}">${l}</span>`; }
+function ntable(head, rows) {
+  return `<div class="tablewrap"><table class="ntable"><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+function ulist(items) { return `<ul class="result">${items.map(x => `<li>${x}</li>`).join('')}</ul>`; }
+
+const GLOSS = [
+  ['Пятая сила (fifth force)', 'Новое взаимодействие помимо гравитации, электромагнетизма, сильного и слабого. Переносчик — новая частица или модификация гравитации.'],
+  ['Пятое измерение (fifth dimension)', 'Дополнительная пространственная координата: Калуца–Клейн, ADD, Randall–Sundrum. Это не то же самое, что пятая сила.'],
+  ['Потенциал Юкавы', 'V(r) = −G·m₁m₂/r · (1 + α·e^(−r/λ)). α — сила относительно гравитации, λ = ħ/(mc) — радиус действия.'],
+  ['Принцип эквивалентности (EP)', 'Все тела падают одинаково: инертная и гравитационная масса совпадают. Нарушение было бы признаком новой силы, действующей по-разному на разные вещества.'],
+  ['Барионное число (baryon number)', 'Число нуклонов в ядре. В 1986 году Фишбах связал с ним «гиперзаряд» предполагаемой силы.'],
+  ['Экранирование (screening)', 'Подавление силы в плотной среде. Так «прячутся» хамелеон, симметрон и галилеон.'],
+  ['Квинтэссенция (quintessence)', 'Динамическое скалярное поле тёмной энергии, медленно меняющееся во времени.'],
+  ['Значимость σ', 'Насколько результат отличается от фона в «сигмах». 5σ — порог открытия в физике частиц.'],
+  ['Локальная и глобальная значимость', 'Локальная относится к одной точке. Глобальная учитывает все проверенные массы и энергии, поэтому всегда ниже.'],
+  ['Уровень доверия (CL)', '90% или 95% CL: верхний предел, который с такой вероятностью не превышен.'],
+  ['Ограничение (exclusion)', 'Область параметров, которую эксперимент исключил. Нулевой результат — это ограничение, а не доказательство отсутствия силы.'],
+  ['Аномальный магнитный момент мюона (g−2)', 'Отклонение g от 2 для мюона. Измеряется прецессией спина в накопительном кольце.'],
+  ['Адронная вакуумная поляризация (HVP)', 'Главный источник неопределённости в g−2. Считают по данным e⁺e⁻ или на решётке.'],
+  ['King-плот (King plot)', 'График изотопных сдвигов двух переходов. Нелинейность может быть ядерной или новой силой.'],
+  ['X17', 'Гипотетический бозон около 17 МэВ. Заявлен в ядерных переходах ATOMKI (2016), не подтверждён независимо.'],
+  ['Значимость нелинейности и сигнал', 'Значимость нелинейности (King) или предпочтения модели (DESI) — не то же самое, что значимость найденной силы.']
+];
+
+const ARCHIVE = [
+  ['Гиперзарядная сила Фишбаха (около 1% гравитации)', '1986', 'Фишбах и соавт.', 'closed', 'Отвергнута', 'Весы, башни и шахты; сама корреляция спорна'],
+  ['Башня WTVD, около 600 м', '1988', 'Экхардт и соавт.', 'closed', 'Отозвана', 'Учёт рельефа'],
+  ['Шахтная аномалия G', '1980-е', 'Стейси, Так', 'closed', 'Снята', 'Рельеф и плотность пород'],
+  ['Плавающая сфера у обрыва', '1987', 'Тибергер', 'closed', 'Отвергнута', 'Не воспроизведена'],
+  ['Гренландская скважина', '1989', 'Андер и соавт.', 'warn', 'Не проверено', 'Одна публикация, нужна проверка'],
+  ['Аномалия K⁰ как мотивация', '1982–86', 'Аронсон, Фишбах', 'warn', 'Не проверено', 'Независимого подтверждения нет'],
+  ['Нарушение лептонной универсальности (R_K)', '2014–2021', 'LHCb', 'closed', 'Снята', 'Пересмотр фона, R_K около 1σ в 2022'],
+  ['Аномалия g-2 (около 5σ к WP2020)', '2021–2023', 'Muon g-2, BMW, CMD-3', 'closed', 'Снята по теории', 'WP25 на решётке; конфликт e⁺e⁻ спорен'],
+  ['Протофобный X17', '2016', 'ATOMKI, Фенг и соавт.', 'open', 'Открыта', 'Не подтверждена; MEG II, PADME, FASER'],
+  ['Нелинейность King-плота', '2020–2025', 'MIT, PTB, ETH, MPIK, Kyoto', 'lim', 'Ядерные объяснения', 'Пятой силы не подтверждено'],
+  ['Эволюция тёмной энергии', '1998–2025', 'DESI', 'open', 'Открыта', '2,8–4,2σ, зависит от выборки'],
+  ['Квинтэссенция как сила', '1988–1998', 'Wetterich, Ratra–Peebles, Caldwell и др.', 'lim', 'Жива', 'Связь с веществом жёстко ограничена'],
+  ['Торсионные поля, «антигравитация», EMDrive', '—', '—', 'closed', 'Вне базы', 'Нет воспроизводимых сигналов и законов сохранения']
+];
+
+const ALL = [
+  ['Башни и шахты (1986–1995)', 'UW; WTVD (NC); Австралия', 'сила около 1% гравитации', 'сигналы около 5σ (WTVD), отозваны', 'closed', 'Отвергнуто', '1992'],
+  ['Eöt-Wash, первые весы (1987–1994)', 'University of Washington', 'зависимость от состава', 'сигнала нет', 'lim', 'Ограничение', '1992'],
+  ['Eöt-Wash (2020)', 'University of Washington', 'Юкава, 52 мкм – 3 мм', 'λ &lt; 38,6 мкм (95% CL)', 'lim', 'Ограничение', '2020'],
+  ['MICROSCOPE (2016–2018, PRL 2022)', 'CNES / ONERA, Франция', 'принцип эквивалентности, Ti/Pt', 'η = (−1,5 ± 2,3 ± 1,5)·10⁻¹⁵', 'lim', 'Ограничение', '2022'],
+  ['Атомная интерферометрия (Беркли, 2015)', 'UC Berkeley', 'хамелеон у источника', 'сигнала нет', 'lim', 'Ограничение', '2015'],
+  ['Rb-интерферометр (Imperial, 2019)', 'Imperial College London', 'хамелеон и симметрон', 'сигнала нет', 'lim', 'Ограничение', '2019'],
+  ['Атомный WEP (Stanford, 2020)', 'Stanford', 'WEP, около 10⁻¹²', 'значимого нарушения нет', 'warn', 'Не проверено', '—'],
+  ['Левитационный датчик (2025)', 'Nanjing / USTC', 'симметрон', 'сужена область параметров', 'warn', 'Не проверено', '—'],
+  ['Muon g-2 (BNL 2006 → Fermilab 2025)', 'Fermilab, США', 'a_μ, 127 ppb', 'около 5σ (WP2020, 2023), затем согласие (WP25)', 'closed', 'Снято по теории', '2025, июнь'],
+  ['CMD-3 (2023–2024)', 'ИЯФ СО РАН, Новосибирск', 'сечение e⁺e⁻ → ππ', 'конфликт с KLOE, ближе к решётке', 'conf', 'Спорно', '2023–24'],
+  ['BMW, решётка (2021)', 'Wuppertal и соавт.', 'HVP на решётке', 'близко к эксперименту', 'ok', 'Сверено', '2021'],
+  ['Hybrid HVP (Nature, 22.04.2026)', 'Боккалетти и соавт.', 'HVP, гибридный расчёт', 'около 0,5σ от измерения', 'ok', 'Сверено', '2025, июнь'],
+  ['ATOMKI, ⁸Be (2016)', 'Дебрецен', 'пары e⁺e⁻, X17', 'заявлено 6,8σ', 'open', 'Открыто', '2016'],
+  ['ATOMKI, ⁴He (2019 → 2021)', 'Дебрецен', 'пары e⁺e⁻, угол 115°', 'заявлено около 7σ', 'warn', 'Не проверено', '2016'],
+  ['ATOMKI, ¹²C (2022)', 'Дебрецен', 'пары e⁺e⁻, угол 155°', 'заявлено больше 4σ', 'warn', 'Не проверено', '2016'],
+  ['VNU Hanoi, 1,7 МВ (2024)', 'VNU, Вьетнам', 'повтор IPC', 'результат противоречивый', 'warn', 'Не проверено', '2016'],
+  ['MEG II (данные 2023, EPJC 2025)', 'PSI, Швейцария', 'p + ⁷Li → ⁸Be*', 'сигнала нет, R₁₇.₆ &lt; 1,8·10⁻⁶ (90% CL)', 'lim', 'Ограничение', '2026'],
+  ['NA64 (данные 2017–2018)', 'CERN SPS', 'видимый распад X17', 'сигнала нет (90% CL)', 'lim', 'Ограничение', '2026'],
+  ['PADME, Run III (данные 2022, публикация 2025)', 'INFN Frascati, Италия', 'резонанс 16,90 МэВ', 'около 2,5σ локально', 'open', 'Открыто', '2026'],
+  ['PADME, Run IV (2025)', 'INFN Frascati', 'то же, большая статистика', 'не опубликовано', 'warn', 'Не проверено', '2026'],
+  ['FASER (2022–2023, препринт 2026)', 'CERN', 'долгоживущий X17', 'низкосвязное окно закрыто (по сводке)', 'warn', 'Не проверено', '2026'],
+  ['E141, переанализ (SLAC)', 'SLAC, США', 'долгоживущий X17', 'исключён при ε_e около 5·10⁻⁵ – 1,7·10⁻⁴', 'lim', 'Ограничение', '2026'],
+  ['LHCb R_K (2022–2023)', 'CERN', 'лептонная универсальность', '0,949, около 1σ', 'closed', 'Снято', '2022, LHCb'],
+  ['LHCb, P5′ и B_s → φμμ', 'CERN', 'угловые наблюдаемые', '3,3σ и 3,6σ (по сводке)', 'warn', 'Не проверено', '—'],
+  ['Belle II, B → Kνν', 'KEK, Япония', 'новая физика', '2,2σ (по сводке)', 'warn', 'Не проверено', '—'],
+  ['LHCb, R(D*)', 'CERN', 'заряженные токи', '3,3–3,8σ (по сводке)', 'warn', 'Не проверено', '—'],
+  ['Bennu, OSIRIS-REx', 'NASA; LANL', 'ультралёгкие поля 10⁻¹⁸–10⁻¹⁷ эВ', 'сигнала нет, 95% CL', 'lim', 'Ограничение', '2024'],
+  ['Cassini (2002–2003)', 'NASA / ESA', 'γ и ω_BD', 'γ − 1 ≈ 2·10⁻⁵; ω &gt; 4·10⁴', 'lim', 'Ограничение', '2003'],
+  ['GRAVITY, S2 (2018–2025)', 'ESO VLTI, Чили', 'GR и Юкава около 200 а.е.', '|α| &lt; 0,003 (2025)', 'lim', 'Ограничение', '2018'],
+  ['GRAVITY+ (2026, препринт)', 'ESO VLTI', 'то же, расширенный набор', '|α| &lt; 6·10⁻⁴ (по абстракту)', 'lim', 'Ограничение', '2018'],
+  ['DESI DR2 (2025)', 'Kitt Peak, США', 'эволюция тёмной энергии', '3,1σ; с сверхновыми 2,8–4,2σ', 'conf', 'Спорно', '2025, март'],
+  ['DESI DR2, Lyα (2026)', 'Kitt Peak, США', 'полная форма Lyα', 'надёжного прямого роста нет', 'warn', 'Не проверено', '2025, март'],
+  ['King-плот, Ca (2025)', 'PTB, ETH, MPIK', 'связь электрон–нейтрон', 'нелинейность и ограничения', 'conf', 'Спорно', '2025, Ca'],
+  ['King-плот, Yb (Door, 2025)', 'PTB, MPIK, MIT', 'масса 10 кэВ – 1 МэВ', 'пределы', 'lim', 'Ограничение', '—'],
+  ['Yb, часовой переход (Kyoto, 2026)', 'Kyoto University', 'новые бозоны, кэВ', 'частичное исключение', 'warn', 'Не проверено', '—'],
+  ['Casimir-тесты (Sushkov и соавт.)', '—', 'силы на микрометрах', 'микрометровые пределы', 'warn', 'Не проверено', '—'],
+  ['Нейтронные звёзды (2025)', 'DESY Zeuthen, INFN Bari', 'скалярные и векторные связи', 'ведущие пределы (без ссылки)', 'warn', 'Не проверено', '—'],
+  ['IceCube, T2K (2025)', '—', 'спин-зависимые связи, g−2', 'ограничения (без ссылки)', 'warn', 'Не проверено', '—']
+];
+
+const MODELS = [
+  ['Квинтэссенция', 'скаляр (0⁺), m ~ 10⁻³³ эВ', 'медленное поле тёмной энергии', 'Wetterich 1988; Ratra–Peebles 1988; Caldwell, Dave, Steinhardt 1998', 'связь с веществом жёстко (WEP, Солнечная система)', 'слабая связь, тёмная материя', 'lim', 'Жива (теория)'],
+  ['Хамелеон', 'скаляр, m(ρ)', 'масса растёт с плотностью среды', 'Khoury, Weltman 2004', 'атомная интерферометрия, Eöt-Wash', 'области с сильным экранированием', 'closed', 'Сильно ограничен'],
+  ['Симметрон', 'скаляр (0⁺), Z₂', 'восстановление симметрии при плотности', 'Hinterbichler, Khoury 2010', 'левитационные датчики (2025)', 'другие сечения параметров', 'warn', 'Частично жив'],
+  ['Галилеон и Вайнштейн', 'скаляр с производными', 'нелинейная кинетика подавляет силу', 'Nicolis, Rattazzi, Trincherini 2009; Vainshtein 1972', 'GW170817 (варианты со скоростью ГВ)', 'модели с изменённым ростом структур', 'warn', 'Жив (часть)'],
+  ['Тёмный фотон, Z′', 'вектор (1⁻), 10⁻²¹ эВ – ГэВ', 'кинетическое смешивание ε; B−L, L_μ−L_τ', 'Holdom 1986', 'NA64, LHCb, BaBar, Belle II при ε &gt; 10⁻⁴–10⁻³', 'ε около 10⁻⁸–10⁻⁵, сверхлёгкие волны', 'lim', 'Жив (концепция)'],
+  ['Протофобный X17', 'вектор, около 17 МэВ', 'связь с нейтронами и электронами, подавлена с протонами', 'Feng и соавт. 2016', 'MEG II, FASER (низкосвязное окно), пионные распады', 'высокосвязное окно', 'warn', 'Ослаблен'],
+  ['Аксион и ALP', 'псевдоскаляр (0⁻)', 'монополь-дипольный спин-зависимый потенциал', 'Peccei–Quinn 1977; Weinberg, Wilczek 1978; Moody–Wilczek 1984', 'звёзды, SN 1987A, CAST, ADMX', 'ультралёгкие около 10⁻²² эВ', 'lim', 'Жив (концепция)'],
+  ['Бранс–Дикке и дилатон', 'скаляр (0⁺)', 'скалярно-тензорная гравитация', 'Brans & Dicke 1961; Damour & Donoghue', 'Cassini: ω &gt; 4·10⁴ (безмассовый случай)', 'экранированные варианты', 'closed', 'Ограничена'],
+  ['ADD (большие измерения)', 'КК-гравитоны (2⁺)', 'большие плоские доп. измерения', 'Arkani-Hamed, Dimopoulos, Dvali 1998', 'Eöt-Wash, коллайдеры', 'меньшие радиусы, сложные геометрии', 'lim', 'Жива (концепция)'],
+  ['Randall–Sundrum', 'КК-гравитоны (2⁺), радион (0⁺)', 'искривлённая пятая координата', 'Randall, Sundrum 1999', 'коллайдеры, Eöt-Wash', 'другие геометрии', 'lim', 'Жива (концепция)']
+];
+
+const FUTURE = [
+  ['PADME, Run IV', 'повторяемость 16,9 МэВ', 'warn', 'Не проверено', 'данные набраны в 2025, публикации нет'],
+  ['MEG II, полная статистика', 'ядерный X17', 'warn', 'Не проверено', 'в работе'],
+  ['NA64, кристаллическая мишень', 'короткие пробеги', 'warn', 'Не проверено', 'тест, отчёт 2026'],
+  ['FASER', 'долгоживущий X17', 'warn', 'Не проверено', 'препринт 2026'],
+  ['DarkQuest (Fermilab)', 'лёгкие долгоживущие частицы', 'closed', 'Отложен', 'пучок SY120 не работает до остановки 2028–29 (бюджет)'],
+  ['SHiP (CERN)', 'долгоживущие частицы', 'ok', 'Одобрен', 'проектная чувствительность не равна полученному пределу'],
+  ['Mu2e (Fermilab)', 'μ → e конверсия', 'ok', 'Сверено', 'первый физический набор 2027, полный около 2030'],
+  ['J-PARC E34', 'g−2 и EDM мюона', 'warn', 'Не проверено', 'в разработке'],
+  ['MAGIS-100 и AION', 'атомные интерферометры', 'warn', 'Не проверено', 'строятся, сроки по источникам'],
+  ['Оптические и ядерные часы (²²⁹Th)', 'дрейф констант, ультралёгкие поля', 'warn', 'Не проверено', 'первые демонстрации'],
+  ['DESI, финал', 'эволюция тёмной энергии', 'warn', 'Не проверено', 'пятилетний обзор завершён в 2026, финальная космология не опубликована'],
+  ['Euclid, Roman', 'тёмная энергия, рост структур', 'warn', 'Не проверено', 'в работе или запуск'],
+  ['LISA', 'ультралёгкие скаляры через гравитационные волны', 'ok', 'Сверено', 'запуск планируется на 2035 год (ESA)'],
+  ['Einstein Telescope, Cosmic Explorer', 'тесты ОТО', 'open', 'Проект', 'не гарантированы до 2035 года']
+];
+
+const PEOPLE = [
+  { r: 'Россия', note: 'Вклад в тему в основном через измерения адронного сечения (CMD-3) и участие в NA64. Прямых поисков пятой силы в российских программах по источникам почти нет.', rows: [
+    ['ИЯФ СО РАН, Новосибирск — CMD-3 (ВЭПП-2000)', 'Игнатов (Ignatov), Ахметшин (Akhmetshin), Бондарь (Bondar)', 'ππ-сечение, HVP для g−2', 'ok', 'Сверено'],
+    ['ИЯФ СО РАН — SND', '—', 'сечение e⁺e⁻ на ВЭПП-2000', 'warn', 'Не проверено'],
+    ['ИЯИ РАН (Москва) и CERN — NA64', 'Гниненко (Gninenko)', 'поиск X17 на электронном пучке', 'warn', 'Не проверено'],
+    ['ОИЯИ (Дубна), ФИАН', 'Воронин (Voronin)', 'нейтронные опыты, спин-зависимые силы', 'warn', 'Не проверено'],
+    ['ОИЯИ (Дубна)', '—', 'прецизионная спектроскопия HD⁺', 'warn', 'Не проверено']
+  ] },
+  { r: 'США', rows: [
+    ['University of Washington, Seattle — Eöt-Wash', 'Адельбергер (Adelberger), Хеккель (Heckel), Гундлах (Gundlach), Шламмингер (Schlamminger), Ли (Lee), Кук (Cook), Флейшер (Fleischer)', 'тесты закона 1/r², WEP, хамелеон', 'ok', 'Сверено'],
+    ['Fermilab — Muon g-2', 'Агийяр (Aguillard), Аби (Abi); BNL — Беннетт (Bennett)', 'магнитный момент мюона', 'ok', 'Сверено'],
+    ['UC Berkeley', 'Хамилтон (Hamilton), Мюллер (Müller)', 'атомная интерферометрия', 'ok', 'Сверено'],
+    ['Stanford', 'Касевич (Kasevich), Азенбаум (Asenbaum), Оверстрит (Overstreet), Ким (Kim)', 'атомная интерферометрия, WEP', 'ok', 'Сверено'],
+    ['MIT', 'Вулетич (Vuletić), Каунтс (Counts), Хур (Hur)', 'King-плоты в Yb⁺', 'ok', 'Сверено'],
+    ['LANL, JPL', 'Цай (Tsai), Фарноккья (Farnocchia), Микели (Micheli), Визинелли (Visinelli), Ваньоцци (Vagnozzi)', 'Bennu, орбиты', 'ok', 'Сверено'],
+    ['UC Irvine, UC Riverside', 'Фенг (Feng), Тейт (Tait), Танедо (Tanedo)', 'протофобный X17', 'ok', 'Сверено'],
+    ['UPenn; Case Western', 'Хури (Khoury); Хинтербихлер (Hinterbichler)', 'экранированные поля', 'ok', 'Сверено'],
+    ['Purdue', 'Фишбах (Fischbach)', 'гипотеза 1986 года (статус не фиксируется)', 'ok', 'Сверено'],
+    ['BNL', 'Аронсон (Aronson)', 'соавтор 1986 года', 'ok', 'Сверено']
+  ] },
+  { r: 'Европа', rows: [
+    ['CERN', 'NA64 (Гниненко, см. Россию), FASER, LHCb, SHiP', 'поиски X17, лептонная универсальность', 'ok', 'Сверено'],
+    ['PSI, Швейцария', 'MEG II: Афанасьев (Afanasyev), Папа (Papa)', 'ядерный X17', 'ok', 'Сверено'],
+    ['INFN Frascati, Италия', 'PADME: Босси (Bossi), Массаротти (Massarotti), Франкенталь (Frankenthal)', 'резонанс около 17 МэВ', 'ok', 'Сверено'],
+    ['ATOMKI, Дебрецен, Венгрия', 'Краснахоркаи (Krasznahorkay), Чатлош (Csatlós), Чиге (Csige), Гуйяш (Gulyás)', 'пары e⁺e⁻ в ядрах', 'ok', 'Сверено'],
+    ['ETH Zürich, PTB, MPIK Heidelberg', 'Вильжевский (Wilzewski), Шмидт (Schmidt), Блаум (Blaum), Дор (Door)', 'King-плоты Ca и Yb', 'ok', 'Сверено'],
+    ['Imperial College London; Nottingham', 'Хиндс (Hinds), Сабульский (Sabulsky), Бёррадж (Burrage), Копленд (Copeland)', 'Rb-интерферометрия, экранирование', 'ok', 'Сверено'],
+    ['Portsmouth; Oxford', 'Тэсса Бейкер (Tessa Baker); Ферреира (Ferreira), Десмонд (Desmond)', 'экранирование; DESI и космос', 'warn', 'Не проверено'],
+    ['CNES / ONERA, Франция', 'Тубуль (Touboul; в сноске arXiv:2209.15487 указано: умер в феврале 2021), Метри (Métris), Родригес (Rodrigues), Берже (Bergé)', 'MICROSCOPE', 'ok', 'Сверено'],
+    ['ESO и MPE (Германия)', 'GRAVITY+: Айзенхауэр (Eisenhauer), Генцель (Genzel), Гиллессен (Gillessen), Фоски (Foschi)', 'орбиты у Sgr A*', 'ok', 'Сверено'],
+    ['Universität Heidelberg', 'Веттерих (Wetterich)', 'квинтэссенция', 'ok', 'Сверено']
+  ] },
+  { r: 'Китай', rows: [
+    ['Nanjing University; USTC', 'Инь (Yin), Хуан (Huang), Ду (Du)', 'левитационные датчики, симметрон', 'ok', 'Сверено'],
+    ['Tsinghua University', 'Юн-Чунь Лю (Yong-Chun Liu)', 'спин-зависимые силы', 'warn', 'Не проверено'],
+    ['Peking University', 'Цзи Вэй (Ji Wei)', 'магнитометры, спин-зависимые силы', 'warn', 'Не проверено'],
+    ['HUST, Ухань', 'Цзюнь Ло (Jun Luo)', 'торсионные весы, измерения G', 'warn', 'Не проверено'],
+    ['PandaX', '—', 'аксионные каналы', 'warn', 'Не проверено']
+  ] },
+  { r: 'Япония', rows: [
+    ['Kyoto University', 'Исияма (Ishiyama), Оно (Ono), Такахаси (Takahashi)', 'King-плот в Yb, часовой переход', 'ok', 'Сверено'],
+    ['KEK и J-PARC E34', '—', 'g−2 и EDM мюона', 'ok', 'Сверено'],
+    ['KEK, Belle II', '—', 'B-аномалии, лёгкие бозоны', 'warn', 'Не проверено'],
+    ['University of Tokyo', 'Охаси (Ohashi)', 'метод динамического нуля (по A)', 'warn', 'Не проверено']
+  ] },
+  { r: 'Вьетнам', rows: [
+    ['VNU Hanoi', 'Тран Тхе Ань (Tran The Anh)', 'повтор IPC на тандеме 1,7 МВ (препринт 2024)', 'warn', 'Не проверено']
+  ] },
+  { r: 'Теория и скептики', rows: [
+    ['Обзоры', 'Joyce, Jain, Khoury, Trodden (2015); Burrage, Sakstein (2018)', 'классификация механизмов и тестов', 'ok', 'Сверено'],
+    ['Решёточный g−2', 'Боршаньи, Фодор (BMW); Blum, Portelli, Wittig и соавт. (WP25)', 'решёточный HVP', 'ok', 'Сверено'],
+    ['Скептики: ядерные альтернативы X17', 'Миллер (Miller), Чжан (Zhang), University of Washington', 'ядерные форм-факторы не объясняют все три ядра', 'ok', 'Сверено'],
+    ['Скептики: шахтные аномалии', 'Паркер (Parker), Зумберге (Zumberge), 1988', 'локальные неоднородности плотности', 'warn', 'Не проверено'],
+    ['Спорная репликация', 'Тибергер (Thieberger), Бицетти (Bizzeti)', 'плавающая сфера, 1987', 'closed', 'Отвергнуто']
+  ] }
+];
+
+const CONFLICTS = [
+  ['Журнал MEG II', 'JHEP 04 (2025) 035, arXiv:2504.11439 (B) / EPJC 85, 763 (C)', 'EPJC 85, 763; arXiv:2411.07994. 2504.11439 — другая статья', 'ok', 'Сверено'],
+  ['Значение a_μ (финал)', '(114) (B) / (148) (C)', '116 592 070,5 ± 14,8 ·10⁻¹¹ (148)', 'ok', 'Сверено'],
+  ['Hybrid HVP, апрель 2026', '0,5σ (B) / 0,48% (заголовок, C)', 'Nature, 22.04.2026; около 0,5σ', 'ok', 'Сверено'],
+  ['Значимость Ca King', '3,1σ (A) / около 900σ (B, препринт)', 'около 900σ — значимость нелинейности, не сигнала', 'ok', 'Сверено'],
+  ['Год данных PADME Run III', '2025 (B) / осень 2022 (C)', 'данные 2022, публикация 2025', 'ok', 'Сверено'],
+  ['Диапазон MICROSCOPE', 'около 10⁵ м (A, C) / больше 10⁷ м (B)', 'около 10⁵ м', 'ok', 'Сверено'],
+  ['Предел Eöt-Wash', '38,6 мкм (статья) / около 30 мкм (C)', '38,6 мкм, 95% CL', 'ok', 'Сверено'],
+  ['Номер страницы PRL, симметрон', '213301 (A)', '231301', 'ok', 'Сверено'],
+  ['Написание: Weltman', 'Вельтман (A, B)', 'Weltman (Уэлтман), не Veltman', 'ok', 'Сверено'],
+  ['Предел GRAVITY+', '|α| &lt; 0,016 при 150 а.е. (B) / 6·10⁻⁴ при 200 а.е. (C)', '6·10⁻⁴ по абстракту препринта', 'ok', 'Сверено'],
+  ['Радиус силы 1986 года', 'десятки метров – км (A), около 200 м (B), сотни метров (C)', 'не решено: формулы в источнике не читаются', 'warn', 'Не проверено'],
+  ['DarkQuest', 'планируется (A, B) / отложен (C)', 'отложен: PAC, апрель 2026', 'ok', 'Сверено'],
+  ['Значимость R_K в 2022', '0,2σ (B)', 'около 1σ', 'ok', 'Сверено'],
+  ['Значения для Yb King', '3σ (A), 20σ (B), 85σ (препринт 2025)', 'не решено', 'warn', 'Не проверено'],
+  ['Год результата NA64', '2025 (A, B)', 'данные 2017–2018', 'ok', 'Сверено'],
+  ['Дата PRL, Kyoto', 'нет в A, B, C', '28.10.2026 по экспорту APS, сверить на сайте', 'warn', 'Не проверено'],
+  ['Вывод препринта FASER', 'закрыто низкосвязное окно (C)', 'не прочитано: только название', 'warn', 'Не проверено'],
+  ['Утверждение о CMD-3 и KLOE, 7,4σ (B)', 'только B', 'не подтверждено', 'warn', 'Не проверено'],
+  ['Премия Breakthrough Prize для Eöt-Wash (B)', 'разные годы, 2020 или 2021', 'не подтверждено, удалено', 'closed', 'Отвергнуто']
+];
+
+const OPEN_LIST = [
+  'FASER, arXiv:2611.03904: прочитать вывод про низкосвязное окно.',
+  'Kyoto (Ishiyama): дата публикации PRL 137, 183401 на сайте APS.',
+  'Yb 3D King-плот: одно значение из первоисточника.',
+  'Радиус и сила гипотезы 1986 года: по PRL 56, 3.',
+  'Первоисточники 1987–1989 годов: Stubbs (PRL 58, 1070), Parker–Zumberge (Nature), Ander (1989).',
+  'Атомный WEP Stanford 2020: номер журнала и том.',
+  'NA64 2025: есть ли статья, или только данные 2017–2018 годов.',
+  'CMD-3 и KLOE, 7,4σ: подтвердить или убрать.',
+  'Пики ⁴He (7,2σ) и ¹²C (больше 4σ): первоисточники PRC 104, 044003 и публикация 2022 года.',
+  'Значения WP2020 (116 591 810 ± 43) и WP25 — сверить по Phys. Rep. 887 и arXiv:2505.21476.'
+];
+
+const DISCARDED = [
+  ['Фишбах «ныне скончался»', 'A', 'не подтверждено; сведения о живом человеке не фиксируются'],
+  ['Заглушки arXiv:2608.xxxxx, 2505.xxxxx, 2503.xxxxx', 'A, B', 'заменены на реальные номера: 2505.21476, 2503.14738'],
+  ['«Antypas et al. 2026», roadmap', 'B', 'не найдено'],
+  ['Собирательные «Ferreira, Desmond 2025–2026», «Brax, Burrage, Davis 2025–2026»', 'A, B', 'нет конкретных статей'],
+  ['Антипротонный гелий α₅ &lt; 10⁻⁸ (2026)', 'A', 'не подтверждено ни одним источником'],
+  ['DESI DR1, f(R): log₁₀|f_R0| &lt; −4,59', 'A', 'точное число без ссылки'],
+  ['«Гэчжи-форум 2026»', 'A', 'не источник'],
+  ['Торсионные поля, антигравитация, EMDrive', 'B', 'псевдонаука, вне базы'],
+  ['MICROSCOPE: λ &gt; 10⁷ м', 'B', 'противоречит A и C (около 10⁵ м)'],
+  ['Hinterbichler, PRL 104, 213301', 'A', 'ошибка страницы, правильно 231301']
+];
+
+const BIB = [
+  ['Eötvös, Pekár, Fekete, «Beiträge zum Gesetze…»', 'Ann. Phys. 373(9), 11–66 (1922)', 'основа проверок принципа эквивалентности', 'warn', 'Не проверено'],
+  ['Brans, Dicke, «Mach’s Principle and a Relativistic Theory of Gravitation»', 'Phys. Rev. 124, 925 (1961)', 'скалярно-тензорная альтернатива', 'ok', 'Сверено'],
+  ['Vainshtein, «To the problem of nonvanishing gravitation mass»', 'Phys. Lett. B 39, 393 (1972)', 'механизм Вайнштейна', 'warn', 'Не проверено'],
+  ['Moody, Wilczek, «New macroscopic forces?»', 'Phys. Rev. D 30, 130 (1984)', 'спин-зависимые силы', 'ok', 'Сверено'],
+  ['Fischbach, Sudarsky, Szafer, Talmadge, Aronson, «Reanalysis of the Eötvös Experiment»', 'PRL 56, 3 (1986)', 'введение термина «пятая сила»', 'ok', 'Сверено'],
+  ['Stubbs et al.', 'PRL 58, 1070 (1987)', 'первый удар по гипотезе', 'warn', 'Не проверено'],
+  ['Wetterich, «Cosmology and the Fate of Dilatation Symmetry»', 'Nucl. Phys. B 302, 668 (1988)', 'квинтэссенция', 'ok', 'Сверено'],
+  ['Ratra, Peebles, «Cosmological consequences of a rolling homogeneous scalar field»', 'Phys. Rev. D 37, 3406 (1988)', 'квинтэссенция', 'ok', 'Сверено'],
+  ['Fischbach, Talmadge, «Six Years of the Fifth Force»', 'Nature 356, 207 (1992)', 'итоги первого десятилетия', 'ok', 'Сверено'],
+  ['Adelberger, Heckel, Nelson', 'Ann. Rev. Nucl. Part. Sci. 53, 77 (2003)', 'обзор тестов закона 1/r²', 'warn', 'Не проверено'],
+  ['Caldwell, Dave, Steinhardt', 'PRL 80, 1582 (1998)', 'квинтэссенция, термин', 'ok', 'Сверено'],
+  ['Bertotti, Iess, Tortora, «A test of GR using radio links with the Cassini spacecraft»', 'Nature 425, 374 (2003)', 'пределы PPN и Бранс–Дикке', 'ok', 'Сверено'],
+  ['Khoury, Weltman, «Chameleon Fields»', 'PRL 93, 171104 (2004)', 'хамелеон', 'ok', 'Сверено'],
+  ['Nicolis, Rattazzi, Trincherini, «The Galileon as a Local Modification of Gravity»', 'PRD 79, 064036 (2009)', 'галилеон', 'ok', 'Сверено'],
+  ['Hinterbichler, Khoury, «Symmetron Fields»', 'PRL 104, 231301 (2010)', 'симметрон', 'ok', 'Сверено'],
+  ['Joyce, Jain, Khoury, Trodden, «Beyond the Cosmological Standard Model»', 'Phys. Rep. 568, 1 (2015)', 'классификация скалярных механизмов', 'ok', 'Сверено'],
+  ['Hamilton et al., «Atom-interferometry constraints on dark energy»', 'Science 349, 849 (2015); arXiv:1502.03888', 'хамелеон в лаборатории', 'ok', 'Сверено'],
+  ['Krasznahorkay et al., «Observation of Anomalous Internal Pair Creation in ⁸Be»', 'PRL 116, 042501 (2016)', 'исходный X17', 'ok', 'Сверено'],
+  ['Feng et al., «Protophobic Fifth-Force Interpretation…»', 'PRL 117, 071803 (2016)', 'протофобная модель', 'ok', 'Сверено'],
+  ['Burrage, Sakstein, «Tests of Chameleon Gravity»', 'Living Rev. Rel. 21, 1 (2018)', 'обзор тестов', 'ok', 'Сверено'],
+  ['Sabulsky et al.', 'PRL 123, 061102 (2019)', 'Rb-интерферометр', 'ok', 'Сверено'],
+  ['Krasznahorkay et al., ⁴He', 'PRC 104, 044003 (2021); arXiv:2104.10075', 'второй ядерный канал', 'ok', 'Сверено'],
+  ['Lee et al., «New Test of the Gravitational 1/r² Law at Separations down to 52 μm»', 'PRL 124, 101101 (2020)', 'лучший лабораторный предел', 'ok', 'Сверено'],
+  ['Borsanyi et al. (BMW), «Leading hadronic contribution to the muon magnetic moment»', 'Nature 593, 51 (2021)', 'решёточный HVP', 'ok', 'Сверено'],
+  ['Touboul et al., «MICROSCOPE Mission: Final Results…»', 'PRL 129, 121102 (2022); arXiv:2209.15487', 'финальный тест WEP', 'ok', 'Сверено'],
+  ['Hur et al., «Evidence of Two-Source King Plot Nonlinearity»', 'PRL 128, 163201 (2022)', 'двухисточниковая нелинейность', 'ok', 'Сверено'],
+  ['LHCb, «Test of lepton universality in b → sℓℓ decays»', 'PRL 131, 051803 (2023); arXiv:2212.09152', 'R_K = 0,949', 'ok', 'Сверено'],
+  ['CMD-3, «Measurement of the pion form factor»', 'PRL 132, 231903 (2024); arXiv:2309.12910', 'пион-форм-фактор', 'ok', 'Сверено'],
+  ['CMD-3, сечение e⁺e⁻ → ππ', 'PRD 109, 112002 (2024); arXiv:2302.08834', 'сечение', 'ok', 'Сверено'],
+  ['Tsai et al., «Constraints on fifth forces and ultralight dark matter from OSIRIS-REx target asteroid Bennu»', 'Communications Physics (2024); arXiv:2309.13106', 'Бенну и ультралёгкие поля', 'ok', 'Сверено'],
+  ['Afanasyev (MEG II), «Search for the X17 particle…»', 'EPJC 85, 763 (2025); arXiv:2411.07994', 'ядерный X17, сигнала нет', 'ok', 'Сверено'],
+  ['Bossi (PADME), «Search for a new 17 MeV resonance…»', 'JHEP 11, 007 (2025); arXiv:2505.24797', 'резонанс 16,9 МэВ', 'ok', 'Сверено'],
+  ['Muon g-2, «Measurement of the Positive Muon Anomalous Magnetic Moment to 127 ppb»', 'PRL 135, 101802 (2025)', 'финальное значение a_μ', 'ok', 'Сверено'],
+  ['Aliberti et al. (Theory Initiative), «The anomalous magnetic moment of the muon in the SM: an update»', 'Phys. Rep. 1143 (2025); arXiv:2505.21476', 'WP25', 'ok', 'Сверено'],
+  ['Wilzewski et al., «Nonlinear calcium King plot constrains new bosons and nuclear properties»', 'PRL 134, 233002 (2025); arXiv:2412.10277', 'King-плот в кальции', 'ok', 'Сверено'],
+  ['Door et al., King-плот иттербия', 'PRL 134, 063002 (2025)', 'ограничения кэВ–МэВ', 'ok', 'Сверено'],
+  ['Fuchs, «Global analysis of isotope shifts»', 'PRA 112, 052224 (2025)', 'глобальный анализ изотопных сдвигов', 'ok', 'Сверено'],
+  ['DESI Collaboration, «DESI DR2 Results II»', 'arXiv:2503.14738 (2025)', '2,8–4,2σ', 'ok', 'Сверено'],
+  ['Boccaletti et al., «Hybrid calculation of hadronic vacuum polarization to 0.48%»', 'Nature (22.04.2026); arXiv:2407.10913', 'гибридный HVP, около 0,5σ', 'ok', 'Сверено'],
+  ['FASER, «Constraints on a Long-Lived X17 Vector Boson with FASER»', 'arXiv:2611.03904 (2026)', 'низкосвязное окно, вывод не проверен', 'warn', 'Не проверено'],
+  ['Ishiyama et al. (Kyoto), часовой переход Yb', 'PRL 137, 183401 (2026); arXiv:2601.08487', 'изотопные сдвиги и многопереходный анализ', 'warn', 'Не проверено'],
+  ['Frugiuele, Fuchs, Perez, Schlaffer, «Probing new light force-mediators by isotope shift spectroscopy»', 'arXiv:1704.05068 (2017)', 'теория King-плота', 'warn', 'Не проверено'],
+  ['Fischbach, Talmadge, «Ten Years of the Fifth Force»', 'arXiv:hep-ph/9606249 (1996)', 'обзор десятилетия', 'warn', 'Не проверено']
+];
+
+/* схема границ: логарифм длины волны, закрыто и белые пятна */
+const LIMITS_SVG = (() => {
+  const X = lg => 40 + (lg + 8) * 21.8;
+  const dec = [-8, -6, -4, 0, 2, 4, 6, 8, 10, 12, 14];
+  const lab = e => (e === 0 ? '1' : `10${String(e).replace('-', '⁻').replace(/0/g, '⁰').replace(/1/g, '¹').replace(/2/g, '²').replace(/3/g, '³').replace(/4/g, '⁴').replace(/5/g, '⁵').replace(/6/g, '⁶').replace(/7/g, '⁷').replace(/8/g, '⁸').replace(/9/g, '⁹')}`);
+  let s = `<svg viewBox="0 0 560 260" role="img" aria-label="Схема границ: закрытые и открытые по масштабу области, не точный график"><defs><pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hatch-line" x1="0" y1="0" x2="0" y2="7"/></pattern></defs>`;
+  s += `<text class="g-lbl" x="40" y="22">закрыто</text><text class="g-lbl" x="40" y="128">белые пятна (не закрыто)</text>`;
+  s += `<rect class="z-closed" x="${X(-6)}" y="40" width="${X(-4.41) - X(-6)}" height="44"/>`;
+  s += `<rect class="z-weak" x="${X(5)}" y="40" width="${X(14) - X(5)}" height="44"/>`;
+  s += `<rect class="z-closed" x="${X(10.3)}" y="40" width="${X(11.3) - X(10.3)}" height="44"/>`;
+  s += `<rect class="z-open" x="${X(-8)}" y="110" width="${X(-5) - X(-8)}" height="44"/>`;
+  s += `<rect class="z-open" x="${X(3)}" y="110" width="${X(5) - X(3)}" height="44"/>`;
+  s += `<rect class="z-open" x="${X(11)}" y="110" width="${X(14) - X(11)}" height="44"/>`;
+  s += `<line class="g-ln" x1="40" y1="180" x2="520" y2="180"/>`;
+  dec.forEach(e => { const x = X(e); s += `<line class="g-ln" x1="${x}" y1="180" x2="${x}" y2="186"/><text class="g-lbl" x="${x}" y="206" text-anchor="middle">${lab(e)}</text>`; });
+  s += `<text class="g-lbl" x="40" y="236">λ, м (логарифмическая шкала). Схема, не точный график.</text></svg>`;
+  return s;
+})();
+
+const PID = { '2025, июнь': '2025-06', '2025, март': '2025-03', '2022, LHCb': '2022-b', '2025, Ca': '2025-ca', '2023–24': '2023' };
+
+function renderChapters() {
+  document.getElementById('b-gloss').innerHTML = `<dl class="gloss">${GLOSS.map(([t, d]) => `<div class="gcell"><dt>${t}</dt><dd>${d}</dd></div>`).join('')}</dl>
+    <h3>Формула</h3><p>V(r) = −G·m₁m₂/r · (1 + α·e^(−r/λ)), где λ = ħ/(mc).</p>`;
+  document.getElementById('b-archive').innerHTML = ntable(['Гипотеза или наблюдение', 'Год', 'Кто', 'Итог', 'Почему'],
+    ARCHIVE.map(r => [r[0], r[1], r[2], stm(r[3], r[4]), r[5]]));
+  document.getElementById('b-all').innerHTML = ntable(['Эксперимент', 'Где', 'Что искали', 'Результат', 'Статус', 'Страница'],
+    ALL.map(r => [r[0], r[1], r[2], r[3], stm(r[4], r[5]), r[6] === '—' ? '<span class="nofoto-tag">нет фото</span>' :`<a class="pl" href="#${PID[r[6]] || r[6]}">${r[6]}</a>`]));
+  document.getElementById('b-models').innerHTML = ntable(['Модель', 'Переносчик', 'Механизм', 'Авторы', 'Где ограничена', 'Где жива', 'Статус'],
+    MODELS.map(r => [r[0], r[1], r[2], r[3], r[4], r[5], stm(r[6], r[7])]));
+  document.getElementById('b-limits').innerHTML = `<div class="limits-fig">${LIMITS_SVG}</div>
+    <h3>Закрыто</h3>${ulist(['Лабораторно: при силе гравитационной величины исключены λ &lt; 38,6 мкм (Eöt-Wash, 2020).', 'Принцип эквивалентности: η на уровне 10⁻¹⁵ (MICROSCOPE, 2022).', 'Ультралёгкие поля около 10⁻¹⁸–10⁻¹⁷ эВ (Bennu, 2024).', 'Солнечная система: Cassini ограничивает безмассовые скаляры.', 'Канонический хамелеон в вакууме сильно сужен атомной интерферометрией.'])}
+    <h3>Открыто</h3>${ulist(['X17 в простейшей протофобной форме ослаблен; высокосвязная область не закрыта.', 'Тёмная энергия: DESI, 2,8–4,2σ, зависит от выборки.', 'Симметрон и галилеон частично живы.'])}
+    <h3>Белые пятна</h3>${ulist(['Микрон и нанометр: силы Казимира маскируют сигнал.', 'Диапазон 1–100 км: плохо покрыт.', 'Сверхлёгкие поля 10⁻²²–10⁻¹⁸ эВ: только косвенные ограничения.', 'Слабосвязанный тёмный сектор, ε около 10⁻⁷–10⁻⁴, МэВ–ГэВ.', 'Спин-зависимые силы: ограничения слабее, чем спин-независимые.'])}`;
+  document.getElementById('b-future').innerHTML = ntable(['Программа', 'Что решит', 'Статус', 'Срок и примечание'],
+    FUTURE.map(r => [r[0], r[1], stm(r[2], r[3]), r[4]]));
+  document.getElementById('b-people').innerHTML = PEOPLE.map(g => `<h3>${g.r}</h3>${g.note ? `<p>${g.note}</p>` : ''}${ntable(['Институт или группа', 'Люди', 'Направление', 'Статус'], g.rows.map(x => [x[0], x[1], x[2], stm(x[3], x[4])]))}`).join('');
+  document.getElementById('b-open').innerHTML = `<h3>Где источники расходились</h3>${ntable(['Вопрос', 'Версии источников', 'Решение', 'Статус'], CONFLICTS.map(r => [r[0], r[1], r[2], stm(r[3], r[4])]))}
+    <h3>Что ещё проверить</h3><ol class="steps">${OPEN_LIST.map(x => `<li>${x}</li>`).join('')}</ol>
+    <h3>Что отброшено и почему</h3>${ntable(['Что', 'Откуда', 'Почему'], DISCARDED)}`;
+  document.getElementById('b-bib').innerHTML = ntable(['№', 'Работа', 'Журнал', 'Зачем', 'Статус'],
+    BIB.map((r, i) => [String(i + 1), r[0], r[1], r[2], stm(r[3], r[4])]));
+}
+renderChapters();
+
+(function init() {
+  const idx = EV.findIndex(e => e.id === decodeURIComponent(location.hash.slice(1)));
+  show(idx >= 0 ? idx : 0, 0, {});
+})();
+</script>
